@@ -433,6 +433,65 @@
   .modal-title { font-family: 'Nunito', sans-serif; font-size: 19px; font-weight: 800; color: var(--brand-dark); margin-bottom: 6px; }
   .modal-gasto { background: var(--brand-bg); border-radius: 12px; padding: 14px; margin-bottom: 20px; border: 1px solid var(--border); }
   .modal-btns button { flex: 1; padding: 14px; border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; border: none; cursor: pointer; }
+  /* MODALES Y OVERLAYS — todos ocultos por defecto */
+  .modal-overlay { display: none; position: fixed; inset: 0;
+    background: rgba(43, 58, 66, 0.4); backdrop-filter: blur(4px);
+    z-index: 500; align-items: flex-end; justify-content: center; }
+  .modal-overlay.show { display: flex; }
+  .modal-box { background: var(--card); border-radius: 24px 24px 0 0;
+    padding: 24px 20px 40px; width: 100%; max-width: 500px; }
+  .modal-title { font-size: 18px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
+  .modal-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+  .modal-gasto { background: var(--bg); border-radius: 10px;
+    padding: 12px; margin-bottom: 20px; font-size: 14px; }
+  .modal-gasto strong { display: block; font-size: 15px; margin-bottom: 4px; }
+  .modal-btns { display: flex; gap: 10px; }
+  .modal-btns button { flex: 1; padding: 13px; border-radius: 12px;
+    font-size: 16px; font-weight: 600; border: none; cursor: pointer; font-family: inherit; }
+  .btn-cancelar-modal { background: var(--bg); color: var(--text); }
+  .btn-confirmar-eliminar { background: var(--danger); color: white; }
+
+  .modal-foto-historial { display: none; position: fixed; inset: 0;
+    background: rgba(43,58,66,0.4); backdrop-filter: blur(4px);
+    z-index: 500; align-items: flex-end; justify-content: center; }
+  .modal-foto-historial.show { display: flex; }
+  .modal-foto-box { background: var(--card); border-radius: 24px 24px 0 0;
+    padding: 24px 20px 40px; width: 100%; max-width: 500px; }
+  .modal-foto-title { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+  .modal-foto-sub { font-size: 13px; color: var(--muted); margin-bottom: 16px; }
+  .modal-foto-preview { width: 100%; height: 160px; border-radius: 10px;
+    object-fit: cover; margin-bottom: 12px; display: none; }
+  .modal-foto-preview.show { display: block; }
+  .modal-foto-placeholder { width: 100%; height: 100px; border-radius: 10px;
+    background: var(--bg); border: 2px dashed var(--border);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .modal-foto-placeholder.hide { display: none; }
+  .modal-foto-btns { display: flex; gap: 8px; margin-bottom: 12px; }
+  .modal-foto-btns button { flex: 1; padding: 11px; border-radius: 10px;
+    font-size: 13px; font-weight: 600; border: 1px solid var(--border);
+    background: var(--bg); color: var(--primary); cursor: pointer; font-family: inherit; }
+  .modal-foto-drive-status { font-size: 11px; padding: 5px 10px;
+    border-radius: 6px; text-align: center; margin-bottom: 10px; display: none; }
+  .modal-foto-drive-status.show { display: block; }
+  .modal-foto-drive-status.ok { background: #e8f5e9; color: var(--primary); }
+  .modal-foto-drive-status.uploading { background: #e3f2fd; color: #1565c0; }
+  .modal-foto-drive-status.err { background: #fff0f0; color: var(--danger); }
+  .modal-foto-guardar { display: block; width: 100%; background: var(--primary);
+    color: white; border: none; border-radius: 10px; padding: 13px;
+    font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
+  .modal-foto-cancelar { display: block; width: 100%; background: none;
+    color: var(--muted); border: none; padding: 10px; font-size: 14px;
+    cursor: pointer; font-family: inherit; margin-top: 6px; }
+
+  .foto-modal { display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.92); z-index: 600;
+    align-items: center; justify-content: center; flex-direction: column; }
+  .foto-modal.show { display: flex; }
+  .foto-modal img { max-width: 95vw; max-height: 80vh; border-radius: 10px; }
+  .foto-modal-close { color: white; font-size: 36px; position: absolute;
+    top: 20px; right: 24px; cursor: pointer; line-height: 1; }
+  .foto-modal-label { color: #ccc; font-size: 13px; margin-top: 12px; }
 </style>
 </head>
 <body>
