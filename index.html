@@ -14,10 +14,10 @@
 <style>
   :root {
     /* Nueva Paleta de Colores: Hogar Balanceado */
-    --brand-green: #4A7C59;        /* Verde Sabio (Acciones principales) */
-    --brand-dark: #2B3A42;         /* Azul Profundo (Títulos, textos e iconos fuertes) */
-    --brand-bg: #FAF6F0;           /* Arena Cálido (Fondo de la aplicación) */
-    --brand-accent: #E07A5F;       /* Terracota/Coral (Alertas, elementos destacados) */
+    --brand-green: #4A7C59; --primary: #4A7C59;        /* Verde Sabio (Acciones principales) */
+    --brand-dark: #2B3A42; --dark: #2B3A42;         /* Azul Profundo (Títulos, textos e iconos fuertes) */
+    --brand-bg: #FAF6F0; --bg: #FAF6F0;           /* Arena Cálido (Fondo de la aplicación) */
+    --brand-accent: #E07A5F; --accent: #E07A5F;       /* Terracota/Coral (Alertas, elementos destacados) */
     
     /* Colores para las tarjetas asignadas (Mantenemos coherencia suavizada) */
     --cencosud: #1B4F72; --cencosud-light: #D6EAF8;
@@ -26,14 +26,14 @@
     --tenpo: #145A32; --tenpo-light: #FDEBD0;
     
     /* Configuración UI Minimalista */
-    --bg: var(--brand-bg); 
+    --bg: var(--bg); 
     --card: #FFFFFF;
-    --text: var(--brand-dark); 
+    --text: var(--dark); 
     --muted: #7E8A90;
     --border: #E6E2DA; 
-    --accent: var(--brand-green);
+    --accent: var(--primary);
     --success: #4A7C59; 
-    --danger: var(--brand-accent);
+    --danger: var(--accent);
     --radius: 16px;       /* Bordes más redondeados y amigables */
     --radius-sm: 10px;
   }
@@ -68,14 +68,14 @@
   .nav-logo-svg {
     width: 24px;
     height: 24px;
-    color: var(--brand-green);
+    color: var(--primary);
   }
   .nav-title { 
-    font-family: 'Nunito', sans-serif;
+    
     font-size: 19px; 
     font-weight: 800; 
     text-align: center; 
-    color: var(--brand-dark);
+    color: var(--dark);
   }
   .nav-mes-nav { 
     display: flex; 
@@ -89,7 +89,7 @@
     border: none; 
     font-size: 26px; 
     font-weight: 400;
-    color: var(--brand-green); 
+    color: var(--primary); 
     cursor: pointer; 
     padding: 0 4px; 
     line-height: 1;
@@ -127,7 +127,7 @@
     background: none; 
     font-family: inherit;
   }
-  .tab.active { color: var(--brand-green); font-weight: 700; }
+  .tab.active { color: var(--primary); font-weight: 700; }
   .tab svg { width: 22px; height: 22px; }
 
   /* SCREENS */
@@ -146,7 +146,7 @@
 
   /* RESUMEN INICIO (No más negro oscuro, ahora una tarjeta verde sabio acogedora) */
   .summary-total { 
-    background: var(--brand-green); 
+    background: var(--primary); 
     border-radius: var(--radius);
     padding: 20px; 
     margin-bottom: 14px; 
@@ -160,7 +160,7 @@
     font-weight: 500;
   }
   .summary-amount { 
-    font-family: 'Nunito', sans-serif;
+    
     font-size: 32px; 
     font-weight: 800; 
   }
@@ -188,17 +188,17 @@
   }
   .chip-dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
   .chip-info { flex: 1; }
-  .chip-name { font-size: 15px; font-weight: 600; color: var(--brand-dark); }
+  .chip-name { font-size: 15px; font-weight: 600; color: var(--dark); }
   .chip-period { font-size: 12px; color: var(--muted); margin-top: 1px; }
-  .chip-amount { font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; color: var(--brand-dark); }
+  .chip-amount {  font-size: 16px; font-weight: 700; color: var(--dark); }
 
   /* FORMULARIOS AMIGABLES */
   .form-section { margin-bottom: 22px; }
   .form-label { 
-    font-family: 'Nunito', sans-serif;
+    
     font-size: 14px; 
     font-weight: 700; 
-    color: var(--brand-dark); 
+    color: var(--dark); 
     margin-bottom: 8px; 
     letter-spacing: 0.02em; 
   }
@@ -214,7 +214,7 @@
     transition: border-color 0.2s;
   }
   .form-field:focus-within {
-    border-color: var(--brand-green);
+    border-color: var(--primary);
   }
   .form-field label { 
     display: block; 
@@ -226,7 +226,7 @@
   .form-field input, .form-field select {
     display: block; width: 100%; border: none; outline: none;
     font-size: 16px; padding: 4px 12px 10px; background: transparent;
-    color: var(--brand-dark); font-family: inherit; }
+    color: var(--dark); font-family: inherit; }
   .form-field select { appearance: none; cursor: pointer; }
 
   /* DIVISIÓN FAMILIAR (SPLIT) */
@@ -237,10 +237,10 @@
     border: 1px solid var(--border); 
   }
   .split-title { 
-    font-family: 'Nunito', sans-serif;
+    
     font-size: 13px; 
     font-weight: 700; 
-    color: var(--brand-dark);
+    color: var(--dark);
     margin-bottom: 10px; 
     letter-spacing: 0.02em; 
   }
@@ -260,12 +260,12 @@
     font-weight: 700; 
     width: 100%; 
     background: transparent;
-    color: var(--brand-green); 
+    color: var(--primary); 
     font-family: inherit; 
   }
   .split-warning { 
     font-size: 12px; 
-    color: var(--brand-accent); 
+    color: var(--accent); 
     margin-top: 8px;
     padding: 6px 12px; 
     background: #FFF2EE; 
@@ -287,24 +287,24 @@
     transition: all 0.2s;
   }
   .tarjeta-btn.selected { 
-    border-color: var(--brand-green); 
+    border-color: var(--primary); 
     background: #F0F6F2;
-    box-shadow: 0 0 0 1px var(--brand-green);
+    box-shadow: 0 0 0 1px var(--primary);
   }
   .tarjeta-btn .t-name { font-size: 14px; font-weight: 700; }
   .tarjeta-btn .t-period { font-size: 10px; color: var(--muted); margin-top: 2px; }
 
   /* BOTONES */
   .btn-primary { 
-    display: block; 
-    width: 100%; 
-    background: var(--brand-green); 
+    display: inline-block; 
+    width: auto;
+    min-width: 160px;
+    background: var(--primary); 
     color: white; 
     border: none;
     border-radius: var(--radius-sm); 
-    padding: 14px 24px;
-    font-family: 'Nunito', sans-serif;
-    font-size: 16px; 
+    padding: 13px 24px;
+    font-size: 15px; 
     font-weight: 700; 
     cursor: pointer;
     margin-top: 12px; 
@@ -314,14 +314,14 @@
   .btn-primary:active { opacity: 0.9; transform: scale(0.99); }
   
   .btn-secondary { 
-    display: block; 
-    width: 100%; 
+    display: inline-block; 
+    width: auto;
+    min-width: 100px;
     background: transparent; 
     color: var(--muted);
     border: 1px solid var(--border); 
     border-radius: var(--radius-sm);
-    padding: 12px 24px; 
-    font-family: 'Nunito', sans-serif;
+    padding: 12px 20px; 
     font-size: 15px; 
     font-weight: 600;
     cursor: pointer; 
@@ -356,7 +356,7 @@
     padding: 10px; 
     font-size: 12px; 
     font-weight: 600;
-    color: var(--brand-dark); 
+    color: var(--dark); 
     cursor: pointer; 
     text-align: center; 
   }
@@ -377,7 +377,7 @@
     width: 40px; height: 40px; border-radius: 10px;
     display: flex; align-items: center; justify-content: center; font-size: 20px; 
   }
-  .exp-title { font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 700; color: var(--brand-dark); }
+  .exp-title {  font-size: 16px; font-weight: 700; color: var(--dark); }
   .exp-sub { font-size: 12px; color: var(--muted); margin-top: 1px; }
 
   /* HISTORIAL ITEMS */
@@ -389,11 +389,11 @@
     border-bottom: 1px solid var(--border); 
   }
   .tx-info { flex: 1; min-width: 0; }
-  .tx-name { font-size: 15px; font-weight: 600; color: var(--brand-dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tx-name { font-size: 15px; font-weight: 600; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .tx-meta { font-size: 12px; color: var(--muted); margin-top: 2px; }
   .tx-right { text-align: right; flex-shrink: 0; }
-  .tx-amount { font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; color: var(--brand-dark); }
-  .tx-split { font-size: 11px; color: var(--brand-green); font-weight: 600; margin-top: 2px; }
+  .tx-amount {  font-size: 15px; font-weight: 700; color: var(--dark); }
+  .tx-split { font-size: 11px; color: var(--primary); font-weight: 600; margin-top: 2px; }
 
   /* TOAST & NOTIFICACIONES */
   .toast { 
@@ -401,7 +401,7 @@
     top: 24px; 
     left: 50%; 
     transform: translateX(-50%) translateY(-20px);
-    background: var(--brand-dark); 
+    background: var(--dark); 
     color: white; 
     padding: 12px 24px;
     border-radius: 30px; 
@@ -414,46 +414,137 @@
     box-shadow: 0 4px 12px rgba(43, 58, 66, 0.15);
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-  .toast.error { background: var(--brand-accent); }
-  .toast.success { background: var(--brand-green); }
+  .toast.error { background: var(--accent); }
+  .toast.success { background: var(--primary); }
 
   /* LOGIN OVERLAY AMIGABLE */
-  .login-overlay { position: fixed; inset: 0; background: var(--brand-bg); display: none; align-items: center; justify-content: center; z-index: 999; flex-direction: column; padding: 24px; }
-  .login-overlay.show { display: flex; }
+  .login-overlay { 
+    position: fixed; 
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%; height: 100%;
+    background: #FAF6F0 !important; 
+    display: none; 
+    align-items: center; 
+    justify-content: center; 
+    z-index: 99999 !important;
+    flex-direction: column; 
+    padding: 24px;
+    overflow: hidden;
+  }
+  .login-overlay.show { display: flex !important; }
+  .login-overlay * { position: relative; z-index: 1; }
   .login-card { background: white; border-radius: 24px; padding: 36px 24px; width: 100%; max-width: 340px; border: 1px solid var(--border); box-shadow: 0 4px 16px rgba(43, 58, 66, 0.04); }
-  .login-logo-container { display: flex; justify-content: center; margin-bottom: 16px; color: var(--brand-green); }
-  .login-title { font-family: 'Nunito', sans-serif; font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 4px; color: var(--brand-dark); }
+  .login-logo-container { display: flex; justify-content: center; margin-bottom: 16px; color: var(--primary); }
+  .login-title {  font-size: 24px; font-weight: 800; text-align: center; margin-bottom: 4px; color: var(--dark); }
   .login-sub { font-size: 14px; color: var(--muted); text-align: center; margin-bottom: 26px; }
-  .login-field { background: var(--brand-bg); border-radius: 12px; border: 1px solid var(--border); padding: 10px 14px; margin-bottom: 14px; }
+  .login-field { background: var(--bg); border-radius: 12px; border: 1px solid var(--border); padding: 10px 14px; margin-bottom: 14px; }
   .login-field label { font-size: 11px; color: var(--muted); display: block; margin-bottom: 2px; font-weight: 600; }
-  .login-field input { border: none; outline: none; font-size: 16px; width: 100%; background: transparent; color: var(--brand-dark); font-family: inherit; }
+  .login-field input { border: none; outline: none; font-size: 16px; width: 100%; background: transparent; color: var(--dark); font-family: inherit; }
 
   /* MODALES MODERNOS */
-  .modal-box { background: var(--card); border-radius: 24px 24px 0 0; padding: 24px 20px 36px; width: 100%; max-width: 500px; border: 1px solid var(--border); }
-  .modal-title { font-family: 'Nunito', sans-serif; font-size: 19px; font-weight: 800; color: var(--brand-dark); margin-bottom: 6px; }
-  .modal-gasto { background: var(--brand-bg); border-radius: 12px; padding: 14px; margin-bottom: 20px; border: 1px solid var(--border); }
-  .modal-btns button { flex: 1; padding: 14px; border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 700; border: none; cursor: pointer; }
-  /* MODALES Y OVERLAYS — todos ocultos por defecto */
-  .modal-overlay { display: none; position: fixed; inset: 0;
-    background: rgba(43, 58, 66, 0.4); backdrop-filter: blur(4px);
-    z-index: 500; align-items: flex-end; justify-content: center; }
-  .modal-overlay.show { display: flex; }
-  .modal-box { background: var(--card); border-radius: 24px 24px 0 0;
-    padding: 24px 20px 40px; width: 100%; max-width: 500px; }
-  .modal-title { font-size: 18px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
-  .modal-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
-  .modal-gasto { background: var(--bg); border-radius: 10px;
-    padding: 12px; margin-bottom: 20px; font-size: 14px; }
-  .modal-gasto strong { display: block; font-size: 15px; margin-bottom: 4px; }
-  .modal-btns { display: flex; gap: 10px; }
-  .modal-btns button { flex: 1; padding: 13px; border-radius: 12px;
-    font-size: 16px; font-weight: 600; border: none; cursor: pointer; font-family: inherit; }
-  .btn-cancelar-modal { background: var(--bg); color: var(--text); }
-  .btn-confirmar-eliminar { background: var(--danger); color: white; }
+  .modal-overlay { 
+    display: none !important; 
+    position: fixed; inset: 0;
+    background: rgba(43, 58, 66, 0.4); 
+    backdrop-filter: blur(4px); 
+    z-index: 500;
+    align-items: flex-end; 
+    justify-content: center; 
+  }
+  .modal-overlay.show { display: flex !important; }
+  .modal-title {  font-size: 19px; font-weight: 800; color: var(--dark); margin-bottom: 6px; }
+  .modal-gasto { background: var(--bg); border-radius: 12px; padding: 14px; margin-bottom: 20px; border: 1px solid var(--border); }
+  .modal-btns button { flex: 1; padding: 14px; border-radius: 12px;  font-size: 15px; font-weight: 700; border: none; cursor: pointer; }
+  /* DASHBOARD */
+  .dash-filtros { display: flex; gap: 10px; margin-bottom: 16px; }
+  .dash-select { flex: 1; background: var(--card); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 10px 12px; font-size: 14px;
+    font-weight: 500; color: var(--text); font-family: inherit;
+    appearance: none; cursor: pointer; }
+  .dash-kpis { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
+  .dash-kpi { background: var(--card); border-radius: var(--radius);
+    padding: 14px 16px; border: 1px solid var(--border); }
+  .dash-kpi-label { font-size: 11px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+  .dash-kpi-value { font-size: 20px; font-weight: 800; color: var(--dark); letter-spacing: -0.02em; }
+  .dash-kpi-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .dash-card { margin-bottom: 14px; }
+  .dash-card-title { font-size: 14px; font-weight: 700; color: var(--dark);
+    margin-bottom: 14px; letter-spacing: -0.01em; }
+  .dash-legend { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .dash-legend-item { display: flex; align-items: center; gap: 5px;
+    font-size: 12px; color: var(--text); font-weight: 500; }
+  .dash-legend-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .dash-bar-item { margin-bottom: 10px; }
+  .dash-bar-label { display: flex; justify-content: space-between; font-size: 12px;
+    font-weight: 600; color: var(--dark); margin-bottom: 4px; }
+  .dash-bar-track { background: var(--border); border-radius: 6px; height: 8px; overflow: hidden; }
+  .dash-bar-fill { height: 100%; border-radius: 6px; transition: width 0.6s ease; }
+  .top-gasto-item { display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--border); }
+  .top-gasto-rank { width: 24px; height: 24px; border-radius: 50%; background: var(--primary-light);
+    color: var(--primary); font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .top-gasto-info { flex: 1; min-width: 0; }
+  .top-gasto-name { font-size: 14px; font-weight: 600; color: var(--dark);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .top-gasto-meta { font-size: 11px; color: var(--muted); margin-top: 1px; }
+  .top-gasto-amount { font-size: 14px; font-weight: 700; color: var(--primary); flex-shrink: 0; }
+  .cat-badge { display: inline-block; font-size: 10px; font-weight: 700;
+    padding: 2px 8px; border-radius: 10px; margin-left: 4px; cursor: pointer; }
 
+  /* CATEGORIA EN FORMULARIO */
+  .categoria-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+  .cat-chip { font-size: 12px; font-weight: 600; padding: 6px 12px;
+    border-radius: 20px; border: 1.5px solid var(--border);
+    background: var(--card); cursor: pointer; color: var(--muted); transition: all 0.15s; }
+  .cat-chip.selected { border-color: var(--primary); background: var(--primary-light); color: var(--primary); }
+  .foto-badge { position: absolute; top: 8px; right: 8px; background: var(--primary);
+    color: white; font-size: 10px; font-weight: 700; padding: 3px 8px;
+    border-radius: 10px; display: none; }
+  .foto-badge.show { display: block; }
+  .foto-placeholder.hide { display: none; }
+  .foto-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .drive-status { font-size: 11px; margin-top: 6px; padding: 5px 10px;
+    border-radius: 6px; text-align: center; display: none; }
+  .drive-status.show { display: block; }
+  .drive-status.ok { background: #e8f5e9; color: var(--primary); }
+  .drive-status.uploading { background: #e3f2fd; color: #1565c0; }
+  .drive-status.err { background: #fff0f0; color: var(--danger); }
+  .tx-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .tx-foto { width: 44px; height: 44px; border-radius: 8px; object-fit: cover;
+    border: 1px solid var(--border); cursor: pointer; flex-shrink: 0; }
+  .tx-foto-placeholder { width: 44px; height: 44px; border-radius: 8px;
+    background: var(--bg); border: 1px dashed var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; flex-shrink: 0; cursor: pointer; }
+  .btn-eliminar { background: none; border: none; cursor: pointer;
+    padding: 6px 8px; border-radius: 8px; color: var(--muted);
+    font-size: 18px; line-height: 1; margin-left: 4px; flex-shrink: 0; }
+  .btn-eliminar:active { background: #fff0f0; color: var(--danger); }
+  .field-error { font-size: 11px; color: var(--danger); padding: 3px 12px 6px; display: none; }
+  .field-error.show { display: block; }
+  .form-field.error { border-color: var(--danger) !important; background: #fff5f5; }
+  .error-banner-title { font-size: 13px; font-weight: 700; color: var(--danger); margin-bottom: 4px; }
+  .error-banner ul { margin: 0; padding-left: 16px; }
+  .error-banner li { font-size: 13px; color: #c0392b; line-height: 1.6; }
+  .spinner { display: inline-block; width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.4); border-top-color: white;
+    border-radius: 50%; animation: spin 0.7s linear infinite; vertical-align: middle; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .empty-icon { font-size: 48px; margin-bottom: 12px; }
+  .empty-text { font-size: 15px; }
+  .foto-modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92);
+    z-index: 600; align-items: center; justify-content: center; flex-direction: column; }
+  .foto-modal.show { display: flex; }
+  .foto-modal img { max-width: 95vw; max-height: 80vh; border-radius: 10px; object-fit: contain; }
+  .foto-modal-close { color: white; font-size: 36px; position: absolute;
+    top: 20px; right: 24px; cursor: pointer; line-height: 1; font-weight: 300; }
+  .foto-modal-label { color: #ccc; font-size: 13px; margin-top: 12px; }
   .modal-foto-historial { display: none; position: fixed; inset: 0;
-    background: rgba(43,58,66,0.4); backdrop-filter: blur(4px);
-    z-index: 500; align-items: flex-end; justify-content: center; }
+    background: rgba(43,58,66,0.4); backdrop-filter: blur(4px); z-index: 500;
+    align-items: flex-end; justify-content: center; }
   .modal-foto-historial.show { display: flex; }
   .modal-foto-box { background: var(--card); border-radius: 24px 24px 0 0;
     padding: 24px 20px 40px; width: 100%; max-width: 500px; }
@@ -481,19 +572,31 @@
     color: white; border: none; border-radius: 10px; padding: 13px;
     font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit; }
   .modal-foto-cancelar { display: block; width: 100%; background: none;
-    color: var(--muted); border: none; padding: 10px; font-size: 14px;
-    cursor: pointer; font-family: inherit; margin-top: 6px; }
-
-  .foto-modal { display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.92); z-index: 600;
-    align-items: center; justify-content: center; flex-direction: column; }
-  .foto-modal.show { display: flex; }
-  .foto-modal img { max-width: 95vw; max-height: 80vh; border-radius: 10px; }
-  .foto-modal-close { color: white; font-size: 36px; position: absolute;
-    top: 20px; right: 24px; cursor: pointer; line-height: 1; }
-  .foto-modal-label { color: #ccc; font-size: 13px; margin-top: 12px; }
+    color: var(--muted); border: none; padding: 10px;
+    font-size: 14px; cursor: pointer; font-family: inherit; margin-top: 6px; }
+  .modal-box { background: var(--card); border-radius: 24px 24px 0 0;
+    padding: 24px 20px 40px; width: 100%; max-width: 500px; }
+  .modal-title { font-size: 18px; font-weight: 700; color: var(--dark); margin-bottom: 6px; }
+  .modal-sub { font-size: 14px; color: var(--muted); margin-bottom: 20px; line-height: 1.5; }
+  .modal-gasto { background: var(--bg); border-radius: 10px; padding: 12px; margin-bottom: 20px; font-size: 14px; }
+  .modal-gasto strong { display: block; font-size: 15px; margin-bottom: 4px; }
+  .modal-btns { display: flex; gap: 10px; }
+  .modal-btns button { flex: 1; padding: 13px; border-radius: 12px;
+    font-size: 16px; font-weight: 600; border: none; cursor: pointer; font-family: inherit; }
+  .btn-cancelar-modal { background: var(--bg); color: var(--text); }
+  .btn-confirmar-eliminar { background: var(--danger); color: white; }
+  .offline-banner { background: #FEF8F0; border: 1px solid #F9E7D4; border-radius: var(--radius-sm);
+    padding: 12px; margin-bottom: 16px; font-size: 13px; color: #C46200;
+    display: none; align-items: center; gap: 10px; font-weight: 500; }
+  .offline-banner.show { display: flex; }
+  .nav-mes-nav { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 4px; }
+  .mes-arrow { background: none; border: none; font-size: 24px; color: var(--primary);
+    cursor: pointer; display: flex; align-items: center; padding: 0 4px; }
+  .mes-arrow:disabled { color: var(--border); cursor: default; }
+  .badge-pendiente { background: var(--accent); color: white; }
+  .badge-sync-ok { background: var(--primary-light, #E8F0EA); color: var(--primary); }
+  .drive-conn-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
 </style>
-</head>
 <body>
 
 <!-- ======================== LOGIN ======================== -->
@@ -519,8 +622,8 @@
         autocomplete="current-password"
         onkeydown="if(event.key==='Enter') hacerLogin()">
     </div>
-    <div class="login-error" id="login-error">Usuario o contraseña incorrectos</div>
-    <button class="btn-primary" onclick="hacerLogin()">Entrar</button>
+    <div class="login-error" id="login-error" style="display:none">Usuario o contraseña incorrectos</div>
+    <button class="btn-primary" style="width:100%; display:block" onclick="hacerLogin()">Entrar</button>
   </div>
 </div>
 
@@ -558,7 +661,7 @@
     <!-- chips generados por JS -->
   </div>
 
-  <button class="btn-primary" onclick="irARegistrar()">+ Registrar gasto</button>
+  <button class="btn-primary" style="display:inline-block; width:auto" onclick="irARegistrar()">+ Registrar gasto</button>
 </div>
 
 <!-- ======================== SCREEN: REGISTRAR ======================== -->
@@ -639,6 +742,16 @@
   </div>
 
   <div class="form-section">
+    <div class="form-label">Categoría</div>
+    <div class="categoria-grid" id="categoria-grid"></div>
+    <input type="text" id="f-categoria-custom" placeholder="O escribe una categoría propia..."
+      style="margin-top:8px; width:100%; padding:10px 12px; border:1px solid var(--border);
+      border-radius:var(--radius-sm); font-size:14px; font-family:inherit; background:var(--card);
+      color:var(--text); outline:none"
+      oninput="seleccionarCatCustom(this.value)">
+  </div>
+
+  <div class="form-section">
     <div class="form-label">Observaciones (opcional)</div>
     <div class="form-field">
       <label>Notas</label>
@@ -668,10 +781,10 @@
       style="display:none" onchange="procesarFoto(this)">
   </div>
 
-  <button class="btn-primary" id="btn-guardar" onclick="guardarGasto()">
+  <button class="btn-primary" id="btn-guardar" style="display:inline-block; width:auto" onclick="guardarGasto()">
     Guardar y sincronizar
   </button>
-  <button class="btn-secondary" onclick="limpiarFormulario()" style="margin-left:8px">Limpiar</button>
+  <button class="btn-secondary" onclick="limpiarFormulario()" style="margin-left:8px; display:inline-block; width:auto">Limpiar</button>
 </div>
 
 <!-- ======================== SCREEN: HISTORIAL ======================== -->
@@ -749,6 +862,73 @@
   </div>
 </div>
 
+<!-- ======================== SCREEN: DASHBOARD ======================== -->
+<div class="screen" id="screen-dashboard">
+
+  <!-- Filtros -->
+  <div class="dash-filtros">
+    <select id="dash-mes" onchange="renderDashboard()" class="dash-select">
+      <option value="0">Todos los meses</option>
+      <option value="1">Enero</option><option value="2">Febrero</option>
+      <option value="3">Marzo</option><option value="4">Abril</option>
+      <option value="5">Mayo</option><option value="6">Junio</option>
+      <option value="7">Julio</option><option value="8">Agosto</option>
+      <option value="9">Septiembre</option><option value="10">Octubre</option>
+      <option value="11">Noviembre</option><option value="12">Diciembre</option>
+    </select>
+    <select id="dash-tarjeta" onchange="renderDashboard()" class="dash-select">
+      <option value="">Todas las tarjetas</option>
+      <option value="CENCOSUD">Cencosud</option>
+      <option value="FALABELLA">Falabella</option>
+      <option value="BCI">BCI</option>
+      <option value="TENPO">Tenpo</option>
+    </select>
+  </div>
+
+  <!-- KPIs -->
+  <div class="dash-kpis" id="dash-kpis"></div>
+
+  <!-- Gráfico torta por tarjeta -->
+  <div class="card dash-card">
+    <div class="dash-card-title">Distribución por tarjeta</div>
+    <canvas id="chart-tarjeta" height="220"></canvas>
+    <div id="legend-tarjeta" class="dash-legend"></div>
+  </div>
+
+  <!-- Gráfico barras por mes -->
+  <div class="card dash-card">
+    <div class="dash-card-title">Gastos por mes</div>
+    <canvas id="chart-mes" height="200"></canvas>
+  </div>
+
+  <!-- Gráfico torta por categoría -->
+  <div class="card dash-card">
+    <div class="dash-card-title">Distribución por categoría</div>
+    <canvas id="chart-categoria" height="220"></canvas>
+    <div id="legend-categoria" class="dash-legend"></div>
+  </div>
+
+  <!-- Gráfico Marcela vs Ronald -->
+  <div class="card dash-card">
+    <div class="dash-card-title">Marcela vs Ronald</div>
+    <canvas id="chart-personas" height="180"></canvas>
+    <div id="legend-personas" class="dash-legend"></div>
+  </div>
+
+  <!-- Top gastos -->
+  <div class="card dash-card">
+    <div class="dash-card-title">Top 5 gastos más altos</div>
+    <div id="top-gastos"></div>
+  </div>
+
+  <!-- Gastos frecuentes -->
+  <div class="card dash-card">
+    <div class="dash-card-title">Negocios más frecuentes</div>
+    <div id="frecuentes"></div>
+  </div>
+
+</div>
+
 <!-- ======================== MODAL AGREGAR FOTO HISTORIAL ======================== -->
 <div class="modal-foto-historial" id="modal-foto-historial">
   <div class="modal-foto-box">
@@ -816,11 +996,11 @@
     <p style="font-size:13px; color:var(--muted); margin-bottom:14px; line-height:1.5">
       Conecta con Google Drive para que las fotos de las boletas se suban automáticamente a la carpeta <strong>"Boletas Gastos"</strong> en tu Drive.
     </p>
-    <button class="btn-primary" id="btn-conectar-drive" onclick="conectarDrive()">
+    <button class="btn-primary" id="btn-conectar-drive" style="display:inline-block; width:auto" onclick="conectarDrive()">
       Conectar con Google Drive
     </button>
     <button class="btn-secondary" id="btn-desconectar-drive"
-      onclick="desconectarDrive()" style="display:none; margin-top:8px; color:var(--danger); border-color:var(--danger)">
+      onclick="desconectarDrive()" style="display:none; width:auto; margin-top:8px; color:var(--danger); border-color:var(--danger)">
       Desconectar Drive
     </button>
   </div>
@@ -871,6 +1051,13 @@
     </svg>
     Registrar
   </button>
+  <button class="tab" id="tab-dashboard" onclick="cambiarTab('dashboard')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <rect x="2" y="2" width="9" height="9" rx="2"/><rect x="13" y="2" width="9" height="9" rx="2"/>
+      <rect x="2" y="13" width="9" height="9" rx="2"/><rect x="13" y="13" width="9" height="9" rx="2"/>
+    </svg>
+    Dashboard
+  </button>
   <button class="tab" id="tab-historial" onclick="cambiarTab('historial')">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
       <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/>
@@ -895,12 +1082,308 @@
   </button>
 </nav>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 // ============================================================
-// CONFIGURACIÓN
+// CATEGORÍAS
 // ============================================================
+const CATEGORIAS_DEFAULT = [
+  'Supermercado','Farmacia','Restaurante','Bencinera',
+  'Ropa','Salud','Educación','Entretenimiento','Servicios','Otros'
+];
+
+const KEYWORDS_CATEGORIA = {
+  'Supermercado': ['jumbo','lider','unimarc','santa isabel','tottus','walmart','acuenta','ekono'],
+  'Farmacia':     ['farmacias','cruz verde','salcobrand','ahumada','farmacia'],
+  'Restaurante':  ['restaurant','sushi','pizza','burger','mcdonalds','subway','rappi','uber eats','pedidosya'],
+  'Bencinera':    ['copec','shell','petrobras','enex','bp','bencina'],
+  'Ropa':         ['falabella','ripley','paris','zara','h&m','forever','ropa','moda'],
+  'Salud':        ['clinica','hospital','dentist','doctor','medico','isapre','dental'],
+  'Educación':    ['colegio','universidad','instituto','academia','curso'],
+  'Entretenimiento': ['netflix','spotify','disney','cine','teatro','juego'],
+  'Servicios':    ['agua','luz','gas','internet','telefono','entel','movistar','claro','wtf'],
+};
+
+const COLORES_CATEGORIA = {
+  'Supermercado':'#4A7C59','Farmacia':'#E07A5F','Restaurante':'#F4A261',
+  'Bencinera':'#2A9D8F','Ropa':'#9B59B6','Salud':'#E74C3C',
+  'Educación':'#3498DB','Entretenimiento':'#F39C12','Servicios':'#1ABC9C','Otros':'#95A5A6'
+};
+
+let categoriaSeleccionada = '';
+
+function detectarCategoria(detalle) {
+  const d = detalle.toLowerCase();
+  for (const [cat, words] of Object.entries(KEYWORDS_CATEGORIA)) {
+    if (words.some(w => d.includes(w))) return cat;
+  }
+  return 'Otros';
+}
+
+function renderCategoriaGrid() {
+  const grid = document.getElementById('categoria-grid');
+  if (!grid) return;
+  const detalle = document.getElementById('f-detalle')?.value || '';
+  const autocat = detalle ? detectarCategoria(detalle) : '';
+  if (autocat && !categoriaSeleccionada) categoriaSeleccionada = autocat;
+
+  grid.innerHTML = CATEGORIAS_DEFAULT.map(cat => `
+    <div class="cat-chip ${categoriaSeleccionada === cat ? 'selected' : ''}"
+      onclick="seleccionarCategoria('${cat}')">${cat}</div>
+  `).join('');
+}
+
+function seleccionarCategoria(cat) {
+  categoriaSeleccionada = cat;
+  document.getElementById('f-categoria-custom').value = '';
+  renderCategoriaGrid();
+}
+
+function seleccionarCatCustom(val) {
+  categoriaSeleccionada = val;
+  renderCategoriaGrid();
+}
+
+// ============================================================
+// CHARTS
+// ============================================================
+let charts = {};
+
+const COLORES_TARJETA = {
+  CENCOSUD: '#1B4F72', FALABELLA: '#6C3483', BCI: '#1A5276', TENPO: '#145A32'
+};
+
+const COLORES_PERSONAS = ['#4A7C59', '#E07A5F'];
+
+function destroyCharts() {
+  Object.values(charts).forEach(c => { if (c) c.destroy(); });
+  charts = {};
+}
+
+function renderDashboard() {
+  const mesFiltro     = parseInt(document.getElementById('dash-mes').value);
+  const tarjetaFiltro = document.getElementById('dash-tarjeta').value;
+
+  let datos = [...gastos];
+  if (tarjetaFiltro) datos = datos.filter(g => g.tarjeta === tarjetaFiltro);
+  if (mesFiltro)     datos = datos.filter(g => {
+    const m = g.fecha ? parseInt(g.fecha.split('-')[1]) : 0;
+    return m === mesFiltro;
+  });
+
+  // Autodetectar categoría si no tiene
+  datos = datos.map(g => ({
+    ...g,
+    categoria: g.categoria || detectarCategoria(g.detalle || '')
+  }));
+
+  renderKPIs(datos);
+  destroyCharts();
+  renderChartTarjeta(datos);
+  renderChartMes(gastos, tarjetaFiltro);
+  renderChartCategoria(datos);
+  renderChartPersonas(datos);
+  renderTopGastos(datos);
+  renderFrecuentes(datos);
+}
+
+// KPIs
+function renderKPIs(datos) {
+  const total    = datos.reduce((s, g) => s + Number(g.monto), 0);
+  const marcela  = datos.reduce((s, g) => s + Number(g.marcela||0), 0);
+  const ronald   = datos.reduce((s, g) => s + Number(g.ronald||0), 0);
+  const promedio = datos.length ? total / datos.length : 0;
+
+  document.getElementById('dash-kpis').innerHTML = `
+    <div class="dash-kpi">
+      <div class="dash-kpi-label">Total gastos</div>
+      <div class="dash-kpi-value">${formatMonto(total)}</div>
+      <div class="dash-kpi-sub">${datos.length} transacciones</div>
+    </div>
+    <div class="dash-kpi">
+      <div class="dash-kpi-label">Promedio</div>
+      <div class="dash-kpi-value">${formatMonto(Math.round(promedio))}</div>
+      <div class="dash-kpi-sub">por transacción</div>
+    </div>
+    <div class="dash-kpi">
+      <div class="dash-kpi-label">Marcela</div>
+      <div class="dash-kpi-value">${formatMonto(marcela)}</div>
+      <div class="dash-kpi-sub">${total ? Math.round(marcela/total*100) : 0}% del total</div>
+    </div>
+    <div class="dash-kpi">
+      <div class="dash-kpi-label">Ronald</div>
+      <div class="dash-kpi-value">${formatMonto(ronald)}</div>
+      <div class="dash-kpi-sub">${total ? Math.round(ronald/total*100) : 0}% del total</div>
+    </div>
+  `;
+}
+
+// Torta por tarjeta
+function renderChartTarjeta(datos) {
+  const totales = {};
+  datos.forEach(g => {
+    totales[g.tarjeta] = (totales[g.tarjeta] || 0) + Number(g.monto);
+  });
+  const labels  = Object.keys(totales);
+  const values  = labels.map(l => totales[l]);
+  const colors  = labels.map(l => COLORES_TARJETA[l] || '#999');
+  const total   = values.reduce((a,b) => a+b, 0);
+
+  const ctx = document.getElementById('chart-tarjeta');
+  if (!ctx || !labels.length) return;
+  charts.tarjeta = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+    options: { plugins: { legend: { display: false } }, cutout: '65%' }
+  });
+
+  document.getElementById('legend-tarjeta').innerHTML = labels.map((l, i) => `
+    <div class="dash-legend-item">
+      <div class="dash-legend-dot" style="background:${colors[i]}"></div>
+      <span>${l} — ${total ? Math.round(values[i]/total*100) : 0}%</span>
+    </div>`).join('');
+}
+
+// Barras por mes
+function renderChartMes(todos, tarjetaFiltro) {
+  let datos = tarjetaFiltro ? todos.filter(g => g.tarjeta === tarjetaFiltro) : todos;
+  const porMes = {};
+  datos.forEach(g => {
+    if (!g.fecha) return;
+    const mes = parseInt(g.fecha.split('-')[1]);
+    porMes[mes] = (porMes[mes] || 0) + Number(g.monto);
+  });
+
+  const mesesOrden = [1,2,3,4,5,6,7,8,9,10,11,12];
+  const labels = mesesOrden.filter(m => porMes[m]).map(m => MESES[m].slice(0,3));
+  const values = mesesOrden.filter(m => porMes[m]).map(m => porMes[m]);
+
+  const ctx = document.getElementById('chart-mes');
+  if (!ctx || !labels.length) return;
+  charts.mes = new Chart(ctx, {
+    type: 'bar',
+    data: { labels, datasets: [{
+      data: values,
+      backgroundColor: 'rgba(74,124,89,0.7)',
+      borderColor: '#4A7C59',
+      borderWidth: 1.5,
+      borderRadius: 6,
+    }]},
+    options: {
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k', font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.05)' } },
+        x: { ticks: { font: { size: 11 } }, grid: { display: false } }
+      }
+    }
+  });
+}
+
+// Torta por categoría
+function renderChartCategoria(datos) {
+  const totales = {};
+  datos.forEach(g => {
+    const cat = g.categoria || 'Otros';
+    totales[cat] = (totales[cat] || 0) + Number(g.monto);
+  });
+  const sorted  = Object.entries(totales).sort((a,b) => b[1]-a[1]);
+  const labels  = sorted.map(([l]) => l);
+  const values  = sorted.map(([,v]) => v);
+  const colors  = labels.map(l => COLORES_CATEGORIA[l] || '#95A5A6');
+  const total   = values.reduce((a,b) => a+b, 0);
+
+  const ctx = document.getElementById('chart-categoria');
+  if (!ctx || !labels.length) return;
+  charts.categoria = new Chart(ctx, {
+    type: 'doughnut',
+    data: { labels, datasets: [{ data: values, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
+    options: { plugins: { legend: { display: false } }, cutout: '65%' }
+  });
+
+  document.getElementById('legend-categoria').innerHTML = labels.map((l, i) => `
+    <div class="dash-legend-item">
+      <div class="dash-legend-dot" style="background:${colors[i]}"></div>
+      <span>${l} — ${total ? Math.round(values[i]/total*100) : 0}%</span>
+    </div>`).join('');
+}
+
+// Barras Marcela vs Ronald
+function renderChartPersonas(datos) {
+  const marcela = datos.reduce((s,g) => s + Number(g.marcela||0), 0);
+  const ronald  = datos.reduce((s,g) => s + Number(g.ronald||0), 0);
+  const ctx = document.getElementById('chart-personas');
+  if (!ctx) return;
+  charts.personas = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Marcela', 'Ronald'],
+      datasets: [{
+        data: [marcela, ronald],
+        backgroundColor: COLORES_PERSONAS,
+        borderRadius: 8, borderWidth: 0,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'k', font: { size: 10 } }, grid: { color: 'rgba(0,0,0,0.05)' } },
+        y: { ticks: { font: { size: 13, weight: '600' } }, grid: { display: false } }
+      }
+    }
+  });
+
+  document.getElementById('legend-personas').innerHTML = `
+    <div class="dash-legend-item"><div class="dash-legend-dot" style="background:#4A7C59"></div><span>Marcela — ${formatMonto(marcela)}</span></div>
+    <div class="dash-legend-item"><div class="dash-legend-dot" style="background:#E07A5F"></div><span>Ronald — ${formatMonto(ronald)}</span></div>
+  `;
+}
+
+// Top 5 gastos
+function renderTopGastos(datos) {
+  const sorted = [...datos].sort((a,b) => Number(b.monto) - Number(a.monto)).slice(0,5);
+  document.getElementById('top-gastos').innerHTML = sorted.length
+    ? sorted.map((g, i) => `
+      <div class="top-gasto-item">
+        <div class="top-gasto-rank">${i+1}</div>
+        <div class="top-gasto-info">
+          <div class="top-gasto-name">${g.detalle}</div>
+          <div class="top-gasto-meta">${g.tarjeta} · ${formatFecha(g.fecha)}</div>
+        </div>
+        <div class="top-gasto-amount">${formatMonto(g.monto)}</div>
+      </div>`).join('')
+    : '<div class="empty"><div class="empty-text">Sin datos</div></div>';
+}
+
+// Negocios frecuentes
+function renderFrecuentes(datos) {
+  const conteo = {};
+  datos.forEach(g => {
+    const key = (g.detalle || '').trim().toLowerCase();
+    if (!key) return;
+    conteo[key] = (conteo[key] || { nombre: g.detalle, count: 0, total: 0 });
+    conteo[key].count++;
+    conteo[key].total += Number(g.monto);
+  });
+  const sorted = Object.values(conteo).sort((a,b) => b.count - a.count).slice(0,5);
+  const maxCount = sorted[0]?.count || 1;
+
+  document.getElementById('frecuentes').innerHTML = sorted.length
+    ? sorted.map(g => `
+      <div class="dash-bar-item">
+        <div class="dash-bar-label">
+          <span>${g.nombre}</span>
+          <span style="color:var(--muted)">${g.count}x · ${formatMonto(g.total)}</span>
+        </div>
+        <div class="dash-bar-track">
+          <div class="dash-bar-fill" style="width:${Math.round(g.count/maxCount*100)}%; background:var(--primary)"></div>
+        </div>
+      </div>`).join('')
+    : '<div class="empty"><div class="empty-text">Sin datos</div></div>';
+}
+
 const API_URL    = 'https://script.google.com/macros/s/AKfycbwjOMQGWE1qth1hGN6tdq_sQJaD_dB9zh5Le4zrK7wBks-EXTznXEOKQ7e-ZwVhqQbo/exec';
-const API_SECRET = '1HaShlnCOdlGhblPOuWcoZw8dKD1FJ55ubYysQnoQhfI'; // <-- Debe coincidir con la del Apps Script
+const API_SECRET = 'GastosRSM0rales@2026'; // <-- Debe coincidir con la del Apps Script
 
 // Usuarios de la app — reemplaza con tus credenciales reales
 const USUARIOS = {
@@ -915,16 +1398,19 @@ function mostrarLogin() {
   const overlay = document.getElementById('login-overlay');
   overlay.classList.remove('hide');
   overlay.classList.add('show');
-  // Limpiar campos
+  document.body.style.overflow = 'hidden';
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
-  document.getElementById('login-error').classList.remove('show');
+  const err = document.getElementById('login-error');
+  err.classList.remove('show');
+  err.style.display = 'none';
 }
 
 function ocultarLogin() {
   const overlay = document.getElementById('login-overlay');
   overlay.classList.remove('show');
   overlay.classList.add('hide');
+  document.body.style.overflow = '';
 }
 
 function hacerLogin() {
@@ -935,9 +1421,10 @@ function hacerLogin() {
   if (USUARIOS[user] && USUARIOS[user] === pass) {
     localStorage.setItem('appSesion', btoa(user + ':' + Date.now()));
     ocultarLogin();
-    err.classList.remove('show');
+    err.style.display = 'none';
     iniciarApp();
   } else {
+    err.style.display = 'block';
     err.classList.add('show');
     document.getElementById('login-pass').value = '';
     document.getElementById('login-pass').focus();
@@ -1093,7 +1580,8 @@ function cambiarTab(tab) {
 
   document.getElementById('nav-title').textContent = {
     inicio: 'Mis Gastos', registrar: 'Registrar gasto',
-    historial: 'Historial', exportar: 'Exportar', ajustes: 'Ajustes'
+    dashboard: 'Dashboard', historial: 'Historial',
+    exportar: 'Exportar', ajustes: 'Ajustes'
   }[tab] || '';
 
   // Mostrar flechas de mes en Inicio e Historial
@@ -1102,7 +1590,7 @@ function cambiarTab(tab) {
   document.getElementById('nav-sub-static').style.display = conFlechas ? 'none'  : 'block';
 
   if (!conFlechas) {
-    const subs = { registrar: 'Nuevo registro', exportar: 'Selecciona mes y tarjeta', ajustes: 'Configuración' };
+    const subs = { registrar: 'Nuevo registro', exportar: 'Selecciona mes y tarjeta', ajustes: 'Configuración', dashboard: 'Análisis de gastos' };
     document.getElementById('nav-sub-static').textContent = subs[tab] || '';
   }
 
@@ -1111,7 +1599,9 @@ function cambiarTab(tab) {
   const btnSig = document.getElementById('btn-mes-sig');
   if (btnSig) btnSig.disabled = mesActual === hoy.getMonth()+1 && anioActual === hoy.getFullYear();
 
-  if (tab === 'ajustes') actualizarPantallaAjustes();
+  if (tab === 'ajustes')   actualizarPantallaAjustes();
+  if (tab === 'dashboard') { renderCategoriaGrid(); setTimeout(renderDashboard, 100); }
+  if (tab === 'registrar') { renderCategoriaGrid(); }
 }
 
 function irARegistrar() { cambiarTab('registrar'); }
@@ -1304,6 +1794,7 @@ async function guardarGasto() {
     tarjeta: tarjetaSeleccionada,
     detalle, monto, fecha, cuotas, marcela, ronald,
     observaciones: obs,
+    categoria: categoriaSeleccionada || detectarCategoria(detalle),
     origen: 'manual',
     foto:        fotoBase64      || null,
     fotoDriveId: fotoBase64DriveId || null,
@@ -1466,7 +1957,7 @@ function exportarTexto() {
 // FOTO BOLETA + GOOGLE DRIVE OAUTH2
 // ============================================================
 const GOOGLE_CLIENT_ID = '541984586148-ocorlvugpvvtpdmvlhoqtv3sb2qh0tbl.apps.googleusercontent.com';
-const NETLIFY_URL = 'https://6a25a99ca8c3e5999938f58b--delicate-cupcake-2a3a42.netlify.app';
+const NETLIFY_URL = 'https://registralosgastos.cl';
 const DRIVE_FOLDER_NAME = 'Boletas Gastos';
 let tokenClient    = null;
 let accessToken    = null;
@@ -2025,6 +2516,10 @@ function limpiarFormulario() {
   document.getElementById('f-marcela').value = '';
   document.getElementById('f-ronald').value = '';
   document.getElementById('f-obs').value = '';
+  if (document.getElementById('f-categoria-custom'))
+    document.getElementById('f-categoria-custom').value = '';
+  categoriaSeleccionada = '';
+  renderCategoriaGrid();
   const hoy = new Date();
   document.getElementById('f-fecha').value = hoy.toISOString().split('T')[0];
   eliminarFoto();
