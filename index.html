@@ -1461,7 +1461,6 @@ const MESES = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio',
 // ============================================================
 async function apiCall(data) {
   // SIEMPRE usar GET — POST cross-origin no funciona confiable en Safari iOS
-  // y devuelve respuestas opacas que parecen exitosas pero no llegan al server
   try {
     const dataConSecret = { ...data, secret: API_SECRET };
     const encoded = encodeURIComponent(JSON.stringify(dataConSecret));
@@ -1881,7 +1880,7 @@ function renderHistorial() {
           ${g.tarjeta} · ${formatFecha(g.fecha)}
           ${g.cuotas > 1 ? ` · ${g.cuotas} cuotas` : ''}
           ${g.syncPendiente
-            ? '<span class="badge badge-pendiente">⏳ pendiente sync</span>'
+            ? `<span class="badge badge-pendiente" style="cursor:pointer" onclick="reintentarSync(${g._idx})" title="Toca para reintentar">⏳ pendiente sync 🔄</span>`
             : '<span class="badge badge-sync-ok">✓ sincronizado</span>'}
         </div>
       </div>
@@ -2532,6 +2531,49 @@ function showToast(msg, tipo) {
   t.className = 'toast' + (tipo ? ' ' + tipo : '');
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+async function reintentarSync(idx) {
+  const g = gastos[idx];
+  if (!g || !g.syncPendiente) return;
+  showToast('🔄 Reintentando sincronización...', '');
+  try {
+    const resp = await apiCall({ ...g, secret: API_SECRET });
+    if (resp && resp.ok) {
+      gastos[idx].syncPendiente = false;
+      localStorage.setItem('gastos', JSON.stringify(gastos));
+      renderHistorial();
+      renderChips();
+      actualizarTotal();
+      showToast('✓ Gasto sincronizado correctamente', 'success');
+    } else {
+      showToast('⚠️ No se pudo sincronizar: ' + (resp ? resp.error : 'sin respuesta'), 'error');
+    }
+  } catch (err) {
+    showToast('⚠️ Sin conexión al servidor', 'error');
+  }
+}
+
+async function sincronizarPendientes() {
+  const pendientes = gastos.map((g, i) => ({ ...g, _idx: i })).filter(g => g.syncPendiente);
+  if (pendientes.length === 0) return;
+  let sincronizados = 0;
+  for (const g of pendientes) {
+    try {
+      const resp = await apiCall({ ...g, secret: API_SECRET });
+      if (resp && resp.ok) {
+        gastos[g._idx].syncPendiente = false;
+        sincronizados++;
+      }
+    } catch (err) {}
+  }
+  if (sincronizados > 0) {
+    localStorage.setItem('gastos', JSON.stringify(gastos));
+    renderHistorial();
+    renderChips();
+    actualizarTotal();
+    showToast(`✓ ${sincronizados} gasto(s) sincronizado(s)`, 'success');
+  }
 }
 </script>
 </body>
