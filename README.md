@@ -28,12 +28,12 @@ Aplicación web progresiva (PWA) diseñada para familias chilenas que necesitan 
 ## 🏗️ Arquitectura
 
 ```
-┌─────────────┐     ┌─────────────┐
-│   Ronald    │     │   Marcela   │
-│ iPhone/Mac  │     │   iPhone    │
-└──────┬──────┘     └──────┬──────┘
-       │      HTTPS        │
-       └────────┬──────────┘
+┌─────────────┐     ┌─────────────┐    ┌───────────────────┐   
+│   Usuario   │     │   Usuario   │    │    Usuario        │
+│   iPhone    │     │   iPhone    │    │    (Nav. web)     │   
+└──────┬──────┘     └──────┬──────┘    └──────┬────────────┘
+       │      HTTPS        │      HTTPS       │   
+       └────────┬──────────┘──────────────────┘                     
                 │
                 ▼
 ┌──────────────────────────────┐
