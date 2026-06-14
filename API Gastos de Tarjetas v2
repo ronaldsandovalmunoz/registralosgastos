@@ -1,0 +1,354 @@
+// ============================================================
+// CONTROL DE GASTOS — Apps Script API v2
+// ============================================================
+
+const SHEET_ID   = 'ID_DE_GOOGLE_SHEET';
+const API_SECRET = 'contrañena_secreta';
+
+const TARJETAS = {
+  'CENCOSUD':  { color: '#D6EAF8' },
+  'FALABELLA': { color: '#E8DAEF' },
+  'BCI':       { color: '#D5F5E3' },
+  'TENPO':     { color: '#FDEBD0' }
+};
+
+const MESES = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio',
+               'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function responder(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+
+// ============================================================
+// POST — para peticiones normales
+// ============================================================
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    if (data.secret !== API_SECRET) return responder({ ok: false, error: 'No autorizado' });
+    return procesarAccion(data);
+  } catch (err) {
+    return responder({ ok: false, error: err.message });
+  }
+}
+
+// ============================================================
+// GET — fallback para Safari iOS que bloquea POST cross-origin
+// ============================================================
+function doGet(e) {
+  if (e.parameter.secret !== API_SECRET) {
+    return responder({ ok: false, error: 'No autorizado' });
+  }
+
+  // Si viene parámetro 'd' con datos JSON encoded, procesar acción completa
+  if (e.parameter.d) {
+    try {
+      const decoded = decodeURIComponent(e.parameter.d);
+      const data = JSON.parse(decoded);
+      return procesarAccion(data);
+    } catch (err) {
+      return responder({
+        ok: false,
+        error: 'Error parseando d: ' + err.message,
+        recibido: e.parameter.d
+      });
+    }
+  }
+
+  // GET simple — usado para getGastos y verificación
+  const action = e.parameter.action;
+  if (action === 'getGastos') {
+    const mes  = parseInt(e.parameter.mes)  || new Date().getMonth() + 1;
+    const anio = parseInt(e.parameter.anio) || new Date().getFullYear();
+    return responder({ ok: true, gastos: obtenerGastos(mes, anio) });
+  }
+  return responder({ ok: true, mensaje: 'API Gastos v2 activa ✓' });
+}
+
+// ============================================================
+// PROCESADOR CENTRAL DE ACCIONES
+// ============================================================
+function procesarAccion(data) {
+  if (data.action === 'getGastos') {
+    return responder({ ok: true, gastos: obtenerGastos(data.mes, data.anio) });
+  }
+  if (data.action === 'eliminarGasto') {
+    return responder(eliminarGastoSheet(data));
+  }
+  if (data.action === 'actualizarFoto') {
+    return responder(actualizarFotoSheet(data));
+  }
+
+  // Sin action específica = registrar gasto
+  const fila = registrarGasto(data);
+  return responder({ ok: true, fila: fila, id: data.timestamp });
+}
+
+// ============================================================
+// REGISTRAR GASTO EN EL SHEET
+// ============================================================
+function registrarGasto(data) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const fecha = new Date(data.fecha + 'T12:00:00');
+  const mes   = fecha.getMonth() + 1;
+  const anio  = fecha.getFullYear();
+  const nombreSheet = MESES[mes] + ' ' + anio;
+
+  let sheet = ss.getSheetByName(nombreSheet);
+  if (!sheet) sheet = crearSheetMes(ss, nombreSheet, mes, anio);
+
+  const filaDestino = encontrarFilaLibre(sheet, data.tarjeta);
+
+  sheet.getRange(filaDestino, 1).setValue(data.fecha);
+  sheet.getRange(filaDestino, 2).setValue(data.detalle);
+  sheet.getRange(filaDestino, 3).setValue(Number(data.monto));
+  sheet.getRange(filaDestino, 4).setValue(data.cuotas || 1);
+  sheet.getRange(filaDestino, 5).setFormula(
+    `=IFERROR(IF(D${filaDestino}>1,C${filaDestino}/D${filaDestino},C${filaDestino}),"")`
+  );
+  sheet.getRange(filaDestino, 6).setValue(Number(data.marcela) || 0);
+  sheet.getRange(filaDestino, 7).setValue(Number(data.ronald)  || 0);
+  sheet.getRange(filaDestino, 8).setValue(data.observaciones || '');
+  sheet.getRange(filaDestino, 9).setValue(data.foto         || '');
+  sheet.getRange(filaDestino, 10).setValue(data.fotoDriveId || '');
+
+  sheet.getRange(filaDestino, 1).setNumberFormat('dd/mm/yyyy');
+  sheet.getRange(filaDestino, 3).setNumberFormat('#,##0');
+  sheet.getRange(filaDestino, 5).setNumberFormat('#,##0');
+  sheet.getRange(filaDestino, 6).setNumberFormat('#,##0');
+  sheet.getRange(filaDestino, 7).setNumberFormat('#,##0');
+
+  SpreadsheetApp.flush();
+  return filaDestino;
+}
+
+// ============================================================
+// ENCONTRAR FILA LIBRE (CORREGIDO)
+// ============================================================
+function encontrarFilaLibre(sheet, tarjeta) {
+  const datos = sheet.getDataRange().getValues();
+  let dentroTarjeta = false;
+
+  for (let i = 0; i < datos.length; i++) {
+    const celda = String(datos[i][0]).toUpperCase();
+
+    // Detectar encabezado de tarjeta
+    if (celda.includes(tarjeta.toUpperCase())) {
+      dentroTarjeta = true;
+      continue;
+    }
+
+    if (dentroTarjeta) {
+      // Si llegamos a otra tarjeta, ya pasamos la nuestra sin encontrar fila libre
+      const esOtraTarjeta = Object.keys(TARJETAS).some(t => celda.includes(t));
+      if (esOtraTarjeta) break;
+
+      // Saltar fila de encabezado de columnas
+      if (celda === 'FECHA') continue;
+
+      // Si fecha y detalle están vacíos = fila libre
+      if ((datos[i][0] === '' || datos[i][0] === null) &&
+          (datos[i][1] === '' || datos[i][1] === null)) {
+        return i + 1;
+      }
+    }
+  }
+  throw new Error('No se encontró fila libre para ' + tarjeta);
+}
+
+// ============================================================
+// OBTENER GASTOS DESDE EL SHEET
+// ============================================================
+function obtenerGastos(mes, anio) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const nombreSheet = MESES[mes] + ' ' + anio;
+  const sheet = ss.getSheetByName(nombreSheet);
+  if (!sheet) return [];
+
+  const datos = sheet.getDataRange().getValues();
+  const gastos = [];
+  let tarjetaActual = '';
+
+  for (let i = 0; i < datos.length; i++) {
+    const fila = datos[i];
+    const celda = String(fila[0]).trim().toUpperCase();
+
+    const tarjetaEncontrada = Object.keys(TARJETAS).find(t => celda.includes(t));
+    if (tarjetaEncontrada) { tarjetaActual = tarjetaEncontrada; continue; }
+
+    if (celda === 'FECHA' || celda === 'TOTAL' || !tarjetaActual) continue;
+    if (!fila[1] && !fila[2]) continue;
+
+    const monto = Number(fila[2]) || 0;
+    if (monto === 0) continue;
+
+    let fechaStr = '';
+    if (fila[0] instanceof Date) {
+      const d = fila[0];
+      fechaStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    } else {
+      fechaStr = String(fila[0]);
+    }
+
+    const fotoUrl     = String(fila[8] || '').trim();
+    const fotoDriveId = String(fila[9] || '').trim();
+
+    gastos.push({
+      tarjeta:       tarjetaActual,
+      fecha:         fechaStr,
+      detalle:       String(fila[1] || ''),
+      monto:         monto,
+      cuotas:        Number(fila[3]) || 1,
+      marcela:       Number(fila[5]) || 0,
+      ronald:        Number(fila[6]) || 0,
+      observaciones: String(fila[7] || ''),
+      foto:          fotoUrl     || null,
+      fotoDriveId:   fotoDriveId || null,
+      origen:        'sheet',
+      syncPendiente: false,
+      timestamp:     fechaStr + '_' + String(fila[1]).replace(/\s/g,'_'),
+    });
+  }
+  return gastos;
+}
+
+// ============================================================
+// ELIMINAR GASTO DEL SHEET
+// ============================================================
+function eliminarGastoSheet(data) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const fecha = new Date(data.fecha + 'T12:00:00');
+  const mes   = fecha.getMonth() + 1;
+  const anio  = fecha.getFullYear();
+  const sheet = ss.getSheetByName(MESES[mes] + ' ' + anio);
+  if (!sheet) return { ok: false, error: 'Sheet no encontrado' };
+
+  const valores = sheet.getDataRange().getValues();
+  let tarjetaActual = '';
+  let filaEncontrada = -1;
+
+  for (let i = 0; i < valores.length; i++) {
+    const celda = String(valores[i][0]).trim().toUpperCase();
+    const t = Object.keys(TARJETAS).find(t => celda.includes(t));
+    if (t) { tarjetaActual = t; continue; }
+    if (tarjetaActual !== data.tarjeta.toUpperCase()) continue;
+    if (String(valores[i][1]).trim().toLowerCase() === String(data.detalle).trim().toLowerCase() &&
+        Number(valores[i][2]) === Number(data.monto)) {
+      filaEncontrada = i + 1;
+      break;
+    }
+  }
+
+  if (filaEncontrada === -1) return { ok: false, error: 'Gasto no encontrado' };
+  sheet.getRange(filaEncontrada, 1, 1, 10).clearContent();
+  SpreadsheetApp.flush();
+  return { ok: true, fila: filaEncontrada };
+}
+
+// ============================================================
+// ACTUALIZAR FOTO EN EL SHEET
+// ============================================================
+function actualizarFotoSheet(data) {
+  const ss = SpreadsheetApp.openById(SHEET_ID);
+  const fecha = new Date(data.fecha + 'T12:00:00');
+  const mes   = fecha.getMonth() + 1;
+  const anio  = fecha.getFullYear();
+  const sheet = ss.getSheetByName(MESES[mes] + ' ' + anio);
+  if (!sheet) return { ok: false, error: 'Sheet no encontrado' };
+
+  const valores = sheet.getDataRange().getValues();
+  let tarjetaActual = '';
+  let filaEncontrada = -1;
+
+  for (let i = 0; i < valores.length; i++) {
+    const celda = String(valores[i][0]).trim().toUpperCase();
+    const t = Object.keys(TARJETAS).find(t => celda.includes(t));
+    if (t) { tarjetaActual = t; continue; }
+    if (tarjetaActual !== data.tarjeta.toUpperCase()) continue;
+    if (String(valores[i][1]).trim().toLowerCase() === String(data.detalle).trim().toLowerCase() &&
+        Number(valores[i][2]) === Number(data.monto)) {
+      filaEncontrada = i + 1;
+      break;
+    }
+  }
+
+  if (filaEncontrada === -1) return { ok: false, error: 'Gasto no encontrado' };
+  sheet.getRange(filaEncontrada, 9).setValue(data.foto        || '');
+  sheet.getRange(filaEncontrada, 10).setValue(data.fotoDriveId || '');
+  SpreadsheetApp.flush();
+  return { ok: true, fila: filaEncontrada };
+}
+
+// ============================================================
+// CREAR SHEET DEL MES
+// ============================================================
+function crearSheetMes(ss, nombreSheet, mes, anio) {
+  const sheet = ss.insertSheet(nombreSheet);
+
+  const PERIODOS = {
+    'CENCOSUD':  (m,a) => `26/${String(m).padStart(2,'0')}/${a} → 25/${String(m%12+1).padStart(2,'0')}/${m===12?a+1:a}`,
+    'FALABELLA': (m,a) => `20/${String(m).padStart(2,'0')}/${a} → 19/${String(m%12+1).padStart(2,'0')}/${m===12?a+1:a}`,
+    'BCI':       (m,a) => `10/${String(m).padStart(2,'0')}/${a} → 09/${String(m%12+1).padStart(2,'0')}/${m===12?a+1:a}`,
+    'TENPO':     (m,a) => `06/${String(m).padStart(2,'0')}/${a} → 05/${String(m%12+1).padStart(2,'0')}/${m===12?a+1:a}`,
+  };
+
+  const HCOLORS = { 'CENCOSUD':'#1B4F72','FALABELLA':'#6C3483','BCI':'#1A5276','TENPO':'#145A32' };
+  const SCOLORS = { 'CENCOSUD':'#2E86C1','FALABELLA':'#8E44AD','BCI':'#1F618D','TENPO':'#1E8449' };
+  const COLS    = ['Fecha','Detalle / Negocio','Monto Total ($)','Cuotas','Valor Cuota ($)',
+                   'Marcela ($)','Ronald ($)','Observaciones','URL Foto','Drive ID'];
+  const ANCHOS  = [100,280,130,70,130,110,110,200,200,180];
+  ANCHOS.forEach((w,i) => sheet.setColumnWidth(i+1, w));
+
+  let fila = 1;
+  sheet.getRange(fila,1,1,10).merge()
+    .setValue(`CONTROL DE GASTOS — ${MESES[mes].toUpperCase()} ${anio}`)
+    .setBackground('#1C2833').setFontColor('#FFFFFF')
+    .setFontWeight('bold').setFontSize(13).setHorizontalAlignment('center');
+  sheet.setRowHeight(fila, 32); fila++;
+
+  sheet.getRange(fila,1,1,10).merge()
+    .setValue('Inputs en azul  |  Calculado automático: Valor Cuota')
+    .setBackground('#EAECEE').setFontColor('#555555')
+    .setFontSize(9).setHorizontalAlignment('center');
+  sheet.setRowHeight(fila, 18); fila++; fila++;
+
+  Object.keys(TARJETAS).forEach(tarjeta => {
+    sheet.getRange(fila,1,1,10).merge()
+      .setValue(`${tarjeta}   |   Período: ${PERIODOS[tarjeta](mes,anio)}`)
+      .setBackground(HCOLORS[tarjeta]).setFontColor('#FFFFFF')
+      .setFontWeight('bold').setFontSize(11);
+    sheet.setRowHeight(fila, 26); fila++;
+
+    COLS.forEach((col,i) => {
+      sheet.getRange(fila,i+1).setValue(col)
+        .setBackground(SCOLORS[tarjeta]).setFontColor('#FFFFFF')
+        .setFontWeight('bold').setFontSize(9).setHorizontalAlignment('center');
+    });
+    sheet.setRowHeight(fila, 20); fila++;
+
+    const dataStart = fila;
+    for (let i = 0; i < 15; i++) {
+      const bg = i%2===0 ? TARJETAS[tarjeta].color : '#FFFFFF';
+      sheet.getRange(fila,1,1,10).setBackground(bg).setFontSize(9);
+      sheet.getRange(fila,5).setFormula(`=IFERROR(IF(D${fila}>1,C${fila}/D${fila},C${fila}),"")`).setNumberFormat('#,##0');
+      sheet.getRange(fila,3).setNumberFormat('#,##0');
+      sheet.getRange(fila,6).setNumberFormat('#,##0');
+      sheet.getRange(fila,7).setNumberFormat('#,##0');
+      sheet.setRowHeight(fila, 18); fila++;
+    }
+    const dataEnd = fila-1;
+
+    sheet.getRange(fila,1,1,10).setBackground('#FDEBD0').setFontWeight('bold');
+    sheet.getRange(fila,1).setValue('TOTAL');
+    sheet.getRange(fila,3).setFormula(`=SUM(C${dataStart}:C${dataEnd})`).setNumberFormat('#,##0');
+    sheet.getRange(fila,5).setFormula(`=SUM(E${dataStart}:E${dataEnd})`).setNumberFormat('#,##0');
+    sheet.getRange(fila,6).setFormula(`=SUM(F${dataStart}:F${dataEnd})`).setNumberFormat('#,##0');
+    sheet.getRange(fila,7).setFormula(`=SUM(G${dataStart}:G${dataEnd})`).setNumberFormat('#,##0');
+    sheet.setRowHeight(fila, 22); fila++; fila++;
+  });
+
+  SpreadsheetApp.flush();
+  return sheet;
+}
