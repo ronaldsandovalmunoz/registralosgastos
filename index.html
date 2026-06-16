@@ -2906,14 +2906,14 @@ async function adminCargarUsuarios() {
     const resp = await apiCall({ action: 'adminGetUsers', token: sesion?.token });
     if (resp.ok && resp.users) {
       lista.innerHTML = resp.users.map(u => `
-        <div style="display:flex; align-items:center; justify-content:space-between;
+        <div style="display:flex; align-items:center; gap:12px;
           padding:8px 0; border-bottom:1px solid var(--border)">
-          <div>
-            <div style="font-weight:600; font-size:14px">${u.nombre || u.user}</div>
+          <div style="flex:1; min-width:0">
+            <div style="font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">${u.nombre || u.user}</div>
             <div style="font-size:12px; color:var(--muted)">${u.user} · ${u.rol}${u.activo === false ? ' · <span style="color:var(--accent)">inactivo</span>' : ''}</div>
           </div>
           <button onclick="adminToggleUsuario('${u.user}', ${u.activo !== false})"
-            style="background:none; border:1px solid var(--border); border-radius:8px;
+            style="background:none; border:1px solid var(--border); border-radius:8px; flex-shrink:0;
             padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; color:var(--muted)">
             ${u.activo === false ? 'Activar' : 'Desactivar'}
           </button>
@@ -2963,17 +2963,15 @@ async function adminCargarTarjetas() {
     const resp = await apiCall({ action: 'adminGetTarjetas', token: sesion?.token });
     if (resp.ok && resp.tarjetas) {
       lista.innerHTML = Object.entries(resp.tarjetas).map(([id, cfg]) => `
-        <div style="display:flex; align-items:center; justify-content:space-between;
+        <div style="display:flex; align-items:center; gap:12px;
           padding:8px 0; border-bottom:1px solid var(--border)">
-          <div style="display:flex; align-items:center; gap:10px">
-            <div style="width:28px; height:28px; border-radius:8px; background:${cfg.color}"></div>
-            <div>
-              <div style="font-weight:600; font-size:14px">${cfg.nombre || id}</div>
-              <div style="font-size:12px; color:var(--muted)">${id} · ${cfg.periodo}</div>
-            </div>
+          <div style="width:24px; height:24px; border-radius:6px; background:${cfg.color}; flex-shrink:0"></div>
+          <div style="flex:1; min-width:0">
+            <div style="font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">${cfg.nombre || id}</div>
+            <div style="font-size:12px; color:var(--muted)">${id} · ${cfg.periodo}</div>
           </div>
           <button onclick="adminEliminarTarjeta('${id}')"
-            style="background:none; border:1px solid var(--accent); border-radius:8px;
+            style="background:none; border:1px solid var(--accent); border-radius:8px; flex-shrink:0;
             padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; color:var(--accent)">
             Eliminar
           </button>
