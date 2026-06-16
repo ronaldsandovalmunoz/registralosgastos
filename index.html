@@ -3193,13 +3193,11 @@ async function adminEliminarTarjeta(id) {
 
   document.addEventListener('touchmove', (e) => {
     if (refreshing || e.touches.length !== 1) return;
-    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop || window.pageYOffset || 0;
     const dy = e.touches[0].screenY - startY;
-    if (scrollTop <= 2 && dy > 12) {
+    if (dy > 15) {
       if (!pulling) { pulling = true; mostrar(); }
     } else if (pulling && dy <= 0) {
-      ocultar();
-      pulling = false;
+      ocultar(); pulling = false;
     }
   }, { passive: true });
 
@@ -3208,9 +3206,9 @@ async function adminEliminarTarjeta(id) {
     pulling = false;
     const dy = e.changedTouches[0].screenY - startY;
     if (dy >= THRESHOLD) {
-      await ejecutarRefresh(); // oculta al terminar
+      await ejecutarRefresh();
     } else {
-      ocultar(); // no llegó al umbral, ocultar de inmediato
+      ocultar();
     }
   }, { passive: true });
 })();
