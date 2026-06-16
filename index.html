@@ -3042,6 +3042,12 @@ async function adminEliminarTarjeta(id) {
   let pulling    = false;
   let refreshing = false;
   const THRESHOLD = 72;
+
+  // Lee el safe-area-inset-top real del dispositivo (Dynamic Island, notch, etc.)
+  const ptrSafeEl = document.createElement('div');
+  ptrSafeEl.style.cssText = 'position:fixed;top:env(safe-area-inset-top,0px);left:0;width:0;height:0;pointer-events:none';
+  document.body.appendChild(ptrSafeEl);
+  function ptrSafeTop() { return ptrSafeEl.getBoundingClientRect().top || 0; }
   const R = 16; // radio del círculo SVG
   const CIRCUNF = 2 * Math.PI * R; // ~100.5
 
@@ -3050,6 +3056,7 @@ async function adminEliminarTarjeta(id) {
   wrap.style.cssText = `
     position: fixed; top: 0; left: 0; right: 0; z-index: 9999;
     display: flex; align-items: flex-end; justify-content: center;
+    padding-top: env(safe-area-inset-top, 0px);
     height: 0; overflow: hidden; pointer-events: none;
     will-change: height;
   `;
@@ -3108,7 +3115,8 @@ async function adminEliminarTarjeta(id) {
 
   function setPulling(dy) {
     const progreso = Math.min(dy / THRESHOLD, 1);
-    const altura   = Math.min(dy * 0.5, 64);
+    const safeTop  = ptrSafeTop();
+    const altura   = Math.min(dy * 0.5, 64) + safeTop;
     wrap.style.height = altura + 'px';
 
     // Arco de progreso
@@ -3124,7 +3132,7 @@ async function adminEliminarTarjeta(id) {
     arc.style.display    = 'none';
     arrow.style.display  = 'none';
     spinner.style.display = '';
-    wrap.style.height = '64px';
+    wrap.style.height = (64 + ptrSafeTop()) + 'px';
     animarSpinner();
   }
 
