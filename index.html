@@ -3171,16 +3171,16 @@ async function adminEliminarTarjeta(id) {
 
   async function ejecutarRefresh() {
     refreshing = true;
-    ocultar();
+    // La burbuja sigue girando mientras carga
     try {
       await cargarGastosDesdeSheets();
       renderChips();
       renderHistorial();
       actualizarTotal();
-      showToast('✓ Datos actualizados', 'success');
     } catch (e) {
       showToast('Error al actualizar', 'error');
     } finally {
+      ocultar(); // ocultar solo cuando termina
       refreshing = false;
     }
   }
@@ -3207,8 +3207,11 @@ async function adminEliminarTarjeta(id) {
     if (!pulling || refreshing) return;
     pulling = false;
     const dy = e.changedTouches[0].screenY - startY;
-    ocultar();
-    if (dy >= THRESHOLD) await ejecutarRefresh();
+    if (dy >= THRESHOLD) {
+      await ejecutarRefresh(); // oculta al terminar
+    } else {
+      ocultar(); // no llegó al umbral, ocultar de inmediato
+    }
   }, { passive: true });
 })();
 </script>
