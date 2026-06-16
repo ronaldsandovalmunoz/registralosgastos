@@ -3100,65 +3100,76 @@ async function adminEliminarTarjeta(id) {
 }
 
 // ============================================================
-// PULL-TO-REFRESH (iOS PWA) — flecha simple desde borde del nav
+// PULL-TO-REFRESH (iOS PWA) — spinner fijo bajo el nav
 // ============================================================
 (function initPullToRefresh() {
   let startY     = 0;
   let pulling    = false;
   let refreshing = false;
+  let spinRaf    = null;
+  let spinAngle  = 0;
   const THRESHOLD = 65;
 
-  // ── Flecha que emerge del borde inferior del nav ──
-  const arrow = document.createElement('div');
-  arrow.style.cssText = `
+  // ── Burbuja con spinner, fija justo bajo el nav ──
+  const burbuja = document.createElement('div');
+  burbuja.style.cssText = `
     position: fixed; left: 50%; transform: translateX(-50%);
     z-index: 9998; pointer-events: none;
-    display: flex; flex-direction: column; align-items: center;
-    overflow: hidden; width: 32px;
-    top: 0; height: 0;
-    transition: none;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; transition: opacity 0.15s;
   `;
-  arrow.innerHTML = `
-    <svg width="20" height="20" viewBox="0 0 28 28" style="margin-top:auto">
-      <line x1="14" y1="5" x2="14" y2="20" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round"/>
-      <polyline points="8,16 14,22 20,16" fill="none" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  burbuja.innerHTML = `
+    <svg id="ptr-spin-svg" width="22" height="22" viewBox="0 0 22 22">
+      <circle cx="11" cy="11" r="8"
+        fill="none" stroke="#e0e0e0" stroke-width="2.5"/>
+      <path id="ptr-spin-arc"
+        d="M11 3 a8 8 0 0 1 8 8"
+        fill="none" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round"/>
     </svg>`;
-  document.body.appendChild(arrow);
+  document.body.appendChild(burbuja);
 
-  const svgEl = arrow.querySelector('svg');
+  const arc = document.getElementById('ptr-spin-arc');
 
-  // Posiciona la flecha justo debajo del nav en cada interacción
   function navBottom() {
     const nav = document.querySelector('.nav');
     return nav ? nav.getBoundingClientRect().bottom : 70;
   }
 
-  function mostrar(dy) {
-    const nb     = navBottom();
-    const avance = Math.min(dy * 0.12, 18);
-    // top fijo en el borde del nav, height crece hacia abajo
-    arrow.style.top    = nb + 'px';
-    arrow.style.height = avance + 'px';
-    // Rotar SVG 180° cuando ya pasó el umbral
-    svgEl.style.transform       = dy >= THRESHOLD ? 'rotate(180deg)' : 'rotate(0deg)';
-    svgEl.style.transition      = 'transform 0.2s';
-    svgEl.style.transformOrigin = '14px 14px';
-    svgEl.style.opacity         = Math.min(dy / 30, 1);
+  function posicionar() {
+    burbuja.style.top = (navBottom() + 10) + 'px';
   }
 
-  function ocultar(animado = true) {
-    if (animado) {
-      arrow.style.transition = 'height 0.2s ease';
+  function iniciarSpin() {
+    if (spinRaf) return;
+    function frame() {
+      spinAngle = (spinAngle + 5) % 360;
+      burbuja.querySelector('svg').style.transform = `rotate(${spinAngle}deg)`;
+      spinRaf = requestAnimationFrame(frame);
     }
-    arrow.style.height = '0';
-    svgEl.style.transform = 'rotate(0deg)';
-    svgEl.style.opacity   = '0';
-    setTimeout(() => { arrow.style.transition = 'none'; }, 220);
+    spinRaf = requestAnimationFrame(frame);
+  }
+
+  function detenerSpin() {
+    if (spinRaf) { cancelAnimationFrame(spinRaf); spinRaf = null; }
+    spinAngle = 0;
+  }
+
+  function mostrar() {
+    posicionar();
+    burbuja.style.opacity = '1';
+    iniciarSpin();
+  }
+
+  function ocultar() {
+    burbuja.style.opacity = '0';
+    detenerSpin();
   }
 
   async function ejecutarRefresh() {
     refreshing = true;
-    ocultar(true);
+    ocultar();
     try {
       await cargarGastosDesdeSheets();
       renderChips();
@@ -3174,7 +3185,6 @@ async function adminEliminarTarjeta(id) {
 
   document.addEventListener('touchstart', (e) => {
     if (refreshing || e.touches.length !== 1) return;
-    // Solo activar si el contenido está en el tope del scroll
     const scrollTop = document.documentElement.scrollTop || document.body.scrollTop || window.pageYOffset || 0;
     if (scrollTop <= 1) {
       startY  = e.touches[0].screenY;
@@ -3186,10 +3196,9 @@ async function adminEliminarTarjeta(id) {
     if (refreshing || e.touches.length !== 1) return;
     const dy = e.touches[0].screenY - startY;
     if (dy > 8) {
-      pulling = true;
-      mostrar(dy);
+      if (!pulling) { pulling = true; mostrar(); }
     } else if (pulling) {
-      ocultar(false);
+      ocultar();
       pulling = false;
     }
   }, { passive: true });
@@ -3198,11 +3207,8 @@ async function adminEliminarTarjeta(id) {
     if (!pulling || refreshing) return;
     pulling = false;
     const dy = e.changedTouches[0].screenY - startY;
-    if (dy >= THRESHOLD) {
-      await ejecutarRefresh();
-    } else {
-      ocultar(true);
-    }
+    ocultar();
+    if (dy >= THRESHOLD) await ejecutarRefresh();
   }, { passive: true });
 })();
 </script>
