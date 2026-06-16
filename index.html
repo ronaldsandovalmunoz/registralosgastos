@@ -3077,9 +3077,9 @@ async function adminEliminarTarjeta(id) {
     transition: none;
   `;
   arrow.innerHTML = `
-    <svg width="28" height="28" viewBox="0 0 28 28" style="margin-top:auto">
-      <line x1="14" y1="3" x2="14" y2="21" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round"/>
-      <polyline points="7,15 14,22 21,15" fill="none" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <svg width="20" height="20" viewBox="0 0 28 28" style="margin-top:auto">
+      <line x1="14" y1="5" x2="14" y2="20" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round"/>
+      <polyline points="8,16 14,22 20,16" fill="none" stroke="#2E7D32" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>`;
   document.body.appendChild(arrow);
 
@@ -3093,7 +3093,7 @@ async function adminEliminarTarjeta(id) {
 
   function mostrar(dy) {
     const nb     = navBottom();
-    const avance = Math.min(dy * 0.55, 48);
+    const avance = Math.min(dy * 0.25, 30);
     // top fijo en el borde del nav, height crece hacia abajo
     arrow.style.top    = nb + 'px';
     arrow.style.height = avance + 'px';
