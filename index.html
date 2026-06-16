@@ -3158,6 +3158,31 @@ async function adminEliminarTarjeta(id) {
     spinAngle = 0;
   }
 
+  const PUSH = 68; // px que baja el contenido
+
+  function spacerNatural() {
+    const nav    = document.querySelector('.nav');
+    const status = document.querySelector('.status-space');
+    if (!nav) return 80;
+    return nav.getBoundingClientRect().height +
+           (status ? status.getBoundingClientRect().height : 0);
+  }
+
+  function empujarContenido() {
+    const spacer = document.getElementById('nav-spacer');
+    if (!spacer) return;
+    spacer.style.transition = 'height 0.28s ease';
+    spacer.style.height = (spacerNatural() + PUSH) + 'px';
+  }
+
+  function subirContenido() {
+    const spacer = document.getElementById('nav-spacer');
+    if (!spacer) return;
+    spacer.style.transition = 'height 0.28s ease';
+    spacer.style.height = spacerNatural() + 'px';
+    setTimeout(() => { spacer.style.transition = ''; }, 300);
+  }
+
   function mostrar() {
     posicionar();
     burbuja.style.opacity = '1';
@@ -3171,7 +3196,7 @@ async function adminEliminarTarjeta(id) {
 
   async function ejecutarRefresh() {
     refreshing = true;
-    // La burbuja sigue girando mientras carga
+    empujarContenido(); // baja el contenido, spinner queda visible
     try {
       await cargarGastosDesdeSheets();
       renderChips();
@@ -3180,8 +3205,11 @@ async function adminEliminarTarjeta(id) {
     } catch (e) {
       showToast('Error al actualizar', 'error');
     } finally {
-      ocultar(); // ocultar solo cuando termina
-      refreshing = false;
+      subirContenido();           // sube el contenido
+      setTimeout(() => {
+        ocultar();                // oculta spinner cuando termina la animación
+        refreshing = false;
+      }, 300);
     }
   }
 
