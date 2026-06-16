@@ -1646,7 +1646,48 @@ function verificarSesion() {
 
 function cerrarSesion() {
   localStorage.removeItem('appSesion');
+  localStorage.removeItem('appUltimaActividad');
+  detenerTimerInactividad();
   mostrarLogin();
+}
+
+// ── AUTO-LOGOUT POR INACTIVIDAD ──────────────────────────────
+const INACTIVIDAD_LIMITE = 10 * 60 * 1000; // 10 minutos
+const INACTIVIDAD_AVISO  =  9 * 60 * 1000; // aviso al minuto 9
+let _timerInactividad = null;
+let _avisoDado = false;
+
+function registrarActividad() {
+  localStorage.setItem('appUltimaActividad', Date.now().toString());
+  _avisoDado = false;
+}
+
+function iniciarTimerInactividad() {
+  detenerTimerInactividad();
+  registrarActividad();
+  // Escuchar cualquier interacción del usuario
+  ['touchstart', 'mousedown', 'keydown', 'scroll'].forEach(ev =>
+    document.addEventListener(ev, registrarActividad, { passive: true })
+  );
+  _timerInactividad = setInterval(() => {
+    if (!verificarSesion()) return;
+    const ultima   = parseInt(localStorage.getItem('appUltimaActividad') || '0');
+    const inactivo = Date.now() - ultima;
+    if (inactivo >= INACTIVIDAD_LIMITE) {
+      showToast('Sesión cerrada por inactividad', 'error');
+      setTimeout(() => cerrarSesion(), 1200);
+    } else if (inactivo >= INACTIVIDAD_AVISO && !_avisoDado) {
+      _avisoDado = true;
+      showToast('⚠️ Tu sesión cerrará en 1 minuto', '');
+    }
+  }, 30_000); // revisar cada 30 segundos
+}
+
+function detenerTimerInactividad() {
+  if (_timerInactividad) { clearInterval(_timerInactividad); _timerInactividad = null; }
+  ['touchstart', 'mousedown', 'keydown', 'scroll'].forEach(ev =>
+    document.removeEventListener(ev, registrarActividad)
+  );
 }
 
 // TARJETAS se carga dinámicamente desde la API (action=getConfig).
@@ -1798,6 +1839,7 @@ async function iniciarApp() {
   actualizarNavMes();
   ajustarNavSpacer();
   window.addEventListener('resize', ajustarNavSpacer);
+  iniciarTimerInactividad();
   const tabGuardado = localStorage.getItem('appTabActual') || 'inicio';
   const tabsValidos = ['inicio', 'registrar', 'dashboard', 'historial', 'exportar', 'ajustes'];
   cambiarTab(tabsValidos.includes(tabGuardado) ? tabGuardado : 'inicio');
