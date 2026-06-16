@@ -2906,7 +2906,7 @@ async function adminCargarUsuarios() {
     const resp = await apiCall({ action: 'adminGetUsers', token: sesion?.token });
     if (resp.ok && resp.users) {
       lista.innerHTML = resp.users.map(u => `
-        <div style="display:flex; align-items:center; gap:12px;
+        <div style="display:flex; align-items:center; gap:8px;
           padding:8px 0; border-bottom:1px solid var(--border)">
           <div style="flex:1; min-width:0">
             <div style="font-weight:600; font-size:14px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis">${u.nombre || u.user}</div>
@@ -2914,8 +2914,13 @@ async function adminCargarUsuarios() {
           </div>
           <button onclick="adminToggleUsuario('${u.user}', ${u.activo !== false})"
             style="background:none; border:1px solid var(--border); border-radius:8px; flex-shrink:0;
-            padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; color:var(--muted)">
+            padding:4px 8px; font-size:12px; cursor:pointer; font-family:inherit; color:var(--muted)">
             ${u.activo === false ? 'Activar' : 'Desactivar'}
+          </button>
+          <button onclick="adminEliminarUsuario('${u.user}', '${u.nombre || u.user}')"
+            style="background:none; border:1px solid var(--accent); border-radius:8px; flex-shrink:0;
+            padding:4px 8px; font-size:12px; cursor:pointer; font-family:inherit; color:var(--accent)">
+            Eliminar
           </button>
         </div>`).join('');
     } else {
@@ -2951,6 +2956,16 @@ async function adminToggleUsuario(user, desactivar) {
     const resp = await apiCall({ action: 'adminToggleUser', token: sesion?.token, user, activo: !desactivar });
     if (resp.ok) { showToast(`Usuario ${desactivar ? 'desactivado' : 'activado'}`, 'success'); adminCargarUsuarios(); }
     else showToast(resp.error || 'Error', 'error');
+  } catch (e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function adminEliminarUsuario(user, nombre) {
+  if (!confirm(`¿Eliminar permanentemente al usuario "${nombre}"? Esta acción no se puede deshacer.`)) return;
+  try {
+    const sesion = obtenerSesion();
+    const resp = await apiCall({ action: 'adminDeleteUser', token: sesion?.token, user });
+    if (resp.ok) { showToast('Usuario eliminado', 'success'); adminCargarUsuarios(); }
+    else showToast(resp.error || 'Error al eliminar', 'error');
   } catch (e) { showToast('Error: ' + e.message, 'error'); }
 }
 
