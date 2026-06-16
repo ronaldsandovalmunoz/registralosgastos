@@ -52,17 +52,26 @@
   }
 
   /* STATUS BAR SPACE */
-  .status-space { height: env(safe-area-inset-top, 20px); background: var(--card); }
+  .status-space {
+    position: fixed; top: 0; left: 0; right: 0;
+    height: env(safe-area-inset-top, 20px);
+    background: var(--card);
+    z-index: 101;
+  }
 
   /* NAV (Personalizada con el nuevo estilo familiar) */
-  .nav { 
-    background: var(--card); 
+  .nav {
+    background: var(--card);
     border-bottom: 1px solid var(--border);
-    padding: 14px 16px 12px; 
-    position: sticky; 
-    top: 0; 
-    z-index: 100; 
+    padding: 14px 16px 12px;
+    position: fixed;
+    top: env(safe-area-inset-top, 20px);
+    left: 0; right: 0;
+    z-index: 100;
   }
+
+  /* Espaciador para que el contenido no quede debajo del nav fijo */
+  #nav-spacer { flex-shrink: 0; }
   .nav-header-container {
     display: flex;
     align-items: center;
@@ -663,6 +672,9 @@
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
+
+<!-- Espaciador dinámico para compensar el nav fixed -->
+<div id="nav-spacer"></div>
 
 <!-- ======================== SCREEN: INICIO ======================== -->
 <div class="screen active" id="screen-inicio">
@@ -1767,6 +1779,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   await iniciarApp();
 });
 
+function ajustarNavSpacer() {
+  const nav     = document.querySelector('.nav');
+  const spacer  = document.getElementById('nav-spacer');
+  const status  = document.querySelector('.status-space');
+  if (!nav || !spacer) return;
+  const statusH = status ? status.getBoundingClientRect().height : 0;
+  spacer.style.height = (nav.getBoundingClientRect().height + statusH) + 'px';
+}
+
 async function iniciarApp() {
   const hoy = new Date();
   document.getElementById('f-fecha').value = hoy.toISOString().split('T')[0];
@@ -1775,6 +1796,8 @@ async function iniciarApp() {
   mesActual  = hoy.getMonth() + 1;
   anioActual = hoy.getFullYear();
   actualizarNavMes();
+  ajustarNavSpacer();
+  window.addEventListener('resize', ajustarNavSpacer);
   const tabGuardado = localStorage.getItem('appTabActual') || 'inicio';
   const tabsValidos = ['inicio', 'registrar', 'dashboard', 'historial', 'exportar', 'ajustes'];
   cambiarTab(tabsValidos.includes(tabGuardado) ? tabGuardado : 'inicio');
@@ -3107,11 +3130,14 @@ async function adminEliminarTarjeta(id) {
     }
   }
 
-  // Sin check de scrollTop para que funcione desde el primer desliz
   document.addEventListener('touchstart', (e) => {
     if (refreshing || e.touches.length !== 1) return;
-    startY  = e.touches[0].screenY;
-    pulling = false; // se activa solo si baja
+    // Solo activar si el contenido está en el tope del scroll
+    const scrollTop = document.documentElement.scrollTop || document.body.scrollTop || window.pageYOffset || 0;
+    if (scrollTop <= 1) {
+      startY  = e.touches[0].screenY;
+      pulling = false;
+    }
   }, { passive: true });
 
   document.addEventListener('touchmove', (e) => {
