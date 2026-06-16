@@ -3179,9 +3179,8 @@ async function adminEliminarTarjeta(id) {
     if (!pulling || refreshing) return;
     const dy = e.touches[0].screenY - startY;
     if (dy <= 0) { pulling = false; ocultar(); return; }
-    if (e.cancelable) e.preventDefault();
     setPulling(dy);
-  }, { passive: false });
+  }, { passive: true });
 
   document.addEventListener('touchend', async (e) => {
     if (!pulling || refreshing) return;
