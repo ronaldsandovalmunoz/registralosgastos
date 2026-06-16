@@ -2918,8 +2918,8 @@ async function adminCargarUsuarios() {
             ${u.activo === false ? 'Activar' : 'Desactivar'}
           </button>
           <button onclick="adminEliminarUsuario('${u.user}', '${u.nombre || u.user}')"
-            style="background:none; border:1px solid var(--accent); border-radius:8px; flex-shrink:0;
-            padding:4px 8px; font-size:12px; cursor:pointer; font-family:inherit; color:var(--accent)">
+            style="background:#e53935; border:none; border-radius:8px; flex-shrink:0;
+            padding:4px 8px; font-size:12px; cursor:pointer; font-family:inherit; color:#fff">
             Eliminar
           </button>
         </div>`).join('');
@@ -2986,8 +2986,8 @@ async function adminCargarTarjetas() {
             <div style="font-size:12px; color:var(--muted)">${id} · ${cfg.periodo}</div>
           </div>
           <button onclick="adminEliminarTarjeta('${id}')"
-            style="background:none; border:1px solid var(--accent); border-radius:8px; flex-shrink:0;
-            padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; color:var(--accent)">
+            style="background:#e53935; border:none; border-radius:8px; flex-shrink:0;
+            padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; color:#fff">
             Eliminar
           </button>
         </div>`).join('');
