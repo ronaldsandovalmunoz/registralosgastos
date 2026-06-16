@@ -638,7 +638,7 @@
         onkeydown="if(event.key==='Enter') hacerLogin()">
     </div>
     <div class="login-error" id="login-error" style="display:none">Usuario o contraseña incorrectos</div>
-    <button class="btn-primary" style="width:100%; display:block" onclick="hacerLogin()">Entrar</button>
+    <button id="btn-login" class="btn-primary" style="width:100%; display:block" onclick="hacerLogin()">Entrar</button>
   </div>
 </div>
 
@@ -810,10 +810,6 @@
       <select id="filtro-tarjeta" onchange="renderHistorial()"
         style="padding:4px 0 8px; font-size:14px">
         <option value="">Todas las tarjetas</option>
-        <option value="CENCOSUD">Cencosud</option>
-        <option value="FALABELLA">Falabella</option>
-        <option value="BCI">BCI</option>
-        <option value="TENPO">Tenpo</option>
       </select>
     </div>
   </div>
@@ -842,10 +838,6 @@
     <div class="form-field" style="border:none; padding:0">
       <select id="export-tarjeta" style="font-size:15px; padding:8px 12px; width:100%">
         <option value="">Todas las tarjetas</option>
-        <option value="CENCOSUD">Cencosud</option>
-        <option value="FALABELLA">Falabella</option>
-        <option value="BCI">BCI</option>
-        <option value="TENPO">Tenpo</option>
       </select>
     </div>
   </div>
@@ -884,10 +876,6 @@
   <div class="dash-filtros">
     <select id="dash-tarjeta" onchange="renderDashboard()" class="dash-select">
       <option value="">Todas las tarjetas</option>
-      <option value="CENCOSUD">Cencosud</option>
-      <option value="FALABELLA">Falabella</option>
-      <option value="BCI">BCI</option>
-      <option value="TENPO">Tenpo</option>
     </select>
   </div>
 
@@ -1023,7 +1011,7 @@
     <div style="font-size:15px; font-weight:600; margin-bottom:4px">Información</div>
     <div style="font-size:13px; color:var(--muted); line-height:1.6">
       <div>App: Control de Gastos v1.0</div>
-      <div>Tarjetas: Cencosud · Falabella · BCI · Tenpo</div>
+      <div>Tarjetas: <span id="info-tarjetas-activas">cargando…</span></div>
       <div>Gastos registrados: <strong id="info-total-gastos">0</strong></div>
     </div>
   </div>
@@ -1084,6 +1072,76 @@
       Limpiar log
     </button>
   </div>
+
+  <!-- ====== PANEL ADMIN (solo visible si rol=admin) ====== -->
+  <div id="panel-admin" style="display:none">
+    <div style="font-size:13px; font-weight:700; color:var(--primary); text-transform:uppercase;
+      letter-spacing:0.08em; margin-bottom:10px; padding-top:4px">Administración</div>
+
+    <!-- Gestión de usuarios -->
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-size:15px; font-weight:600; margin-bottom:12px">👥 Usuarios</div>
+      <div id="admin-usuarios-lista" style="margin-bottom:12px; font-size:13px; color:var(--muted)">Cargando…</div>
+      <div style="border-top:1px solid var(--border); padding-top:12px; margin-top:4px">
+        <div style="font-size:13px; font-weight:600; margin-bottom:8px">Agregar usuario</div>
+        <input id="admin-new-user" type="text" placeholder="usuario" autocomplete="off" autocapitalize="off"
+          style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 12px;
+          font-size:14px; font-family:inherit; margin-bottom:8px; background:var(--bg)">
+        <input id="admin-new-pass" type="password" placeholder="contraseña"
+          style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 12px;
+          font-size:14px; font-family:inherit; margin-bottom:8px; background:var(--bg)">
+        <input id="admin-new-nombre" type="text" placeholder="Nombre completo"
+          style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 12px;
+          font-size:14px; font-family:inherit; margin-bottom:8px; background:var(--bg)">
+        <select id="admin-new-rol"
+          style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 12px;
+          font-size:14px; font-family:inherit; margin-bottom:12px; background:var(--bg)">
+          <option value="user">Usuario</option>
+          <option value="admin">Admin</option>
+        </select>
+        <button onclick="adminAgregarUsuario()"
+          style="background:var(--primary); color:white; border:none; border-radius:10px;
+          padding:10px 20px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; width:100%">
+          Agregar usuario
+        </button>
+      </div>
+    </div>
+
+    <!-- Gestión de tarjetas -->
+    <div class="card" style="margin-bottom:12px">
+      <div style="font-size:15px; font-weight:600; margin-bottom:12px">💳 Tarjetas</div>
+      <div id="admin-tarjetas-lista" style="margin-bottom:12px; font-size:13px; color:var(--muted)">Cargando…</div>
+      <div style="border-top:1px solid var(--border); padding-top:12px; margin-top:4px">
+        <div style="font-size:13px; font-weight:600; margin-bottom:8px">Agregar tarjeta</div>
+        <input id="admin-new-tarjeta-id" type="text" placeholder="ID (ej: BANCO_ESTADO)" autocapitalize="characters"
+          style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 12px;
+          font-size:14px; font-family:inherit; margin-bottom:8px; background:var(--bg)">
+        <input id="admin-new-tarjeta-nombre" type="text" placeholder="Nombre visible (ej: Banco Estado)"
+          style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 12px;
+          font-size:14px; font-family:inherit; margin-bottom:8px; background:var(--bg)">
+        <input id="admin-new-tarjeta-periodo" type="text" placeholder="Período (ej: del 01 al 31)"
+          style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 12px;
+          font-size:14px; font-family:inherit; margin-bottom:8px; background:var(--bg)">
+        <div style="display:flex; gap:8px; margin-bottom:12px">
+          <div style="flex:1">
+            <div style="font-size:11px; color:var(--muted); margin-bottom:4px">Color principal</div>
+            <input id="admin-new-tarjeta-color" type="color" value="#1B4F72"
+              style="width:100%; height:40px; border:1px solid var(--border); border-radius:8px; cursor:pointer; padding:2px">
+          </div>
+          <div style="flex:1">
+            <div style="font-size:11px; color:var(--muted); margin-bottom:4px">Color fondo</div>
+            <input id="admin-new-tarjeta-light" type="color" value="#D6EAF8"
+              style="width:100%; height:40px; border:1px solid var(--border); border-radius:8px; cursor:pointer; padding:2px">
+          </div>
+        </div>
+        <button onclick="adminAgregarTarjeta()"
+          style="background:var(--primary); color:white; border:none; border-radius:10px;
+          padding:10px 20px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; width:100%">
+          Agregar tarjeta
+        </button>
+      </div>
+    </div>
+  </div><!-- /panel-admin -->
 
 </div>
 
@@ -1484,11 +1542,22 @@ function logEvento(tipo, mensaje, detalle) {
   else console.log(`[LOG] ${mensaje}`, detalle || '');
 }
 
-// Usuarios de la app — reemplaza con tus credenciales reales
-const USUARIOS = {
-  'ronald': 'cacaopay2026',  // Ej: 'ronald': 'miClave2026'
-  'marcela': 'Mmc020492',  // Ej: 'marcela': 'suClave2026'
-};
+// ============================================================
+// SESIÓN — helpers
+// ============================================================
+function obtenerSesion() {
+  try { return JSON.parse(localStorage.getItem('appSesion')) || null; }
+  catch { return null; }
+}
+function obtenerUsuarioActual() {
+  return obtenerSesion()?.user || '';
+}
+function obtenerRolActual() {
+  return obtenerSesion()?.rol || 'user';
+}
+function esAdmin() {
+  return obtenerRolActual() === 'admin';
+}
 
 // ============================================================
 // LOGIN
@@ -1512,32 +1581,51 @@ function ocultarLogin() {
   document.body.style.overflow = '';
 }
 
-function hacerLogin() {
-  const user = document.getElementById('login-user').value.trim().toLowerCase();
-  const pass = document.getElementById('login-pass').value;
-  const err  = document.getElementById('login-error');
+async function hacerLogin() {
+  const user    = document.getElementById('login-user').value.trim().toLowerCase();
+  const pass    = document.getElementById('login-pass').value;
+  const err     = document.getElementById('login-error');
+  const btnLogin = document.getElementById('btn-login');
 
-  if (USUARIOS[user] && USUARIOS[user] === pass) {
-    localStorage.setItem('appSesion', btoa(user + ':' + Date.now()));
-    ocultarLogin();
-    err.style.display = 'none';
-    iniciarApp();
-  } else {
+  err.style.display = 'none';
+  if (btnLogin) { btnLogin.disabled = true; btnLogin.textContent = 'Verificando…'; }
+
+  try {
+    const resp = await apiCall({ action: 'login', username: user, password: pass });
+    if (resp && resp.ok) {
+      const sesion = {
+        token:   resp.token,
+        user:    resp.user,
+        nombre:  resp.nombre  || resp.user,
+        rol:     resp.rol     || 'user',
+        expires: resp.expires || (Date.now() + 7 * 24 * 60 * 60 * 1000)
+      };
+      localStorage.setItem('appSesion', JSON.stringify(sesion));
+      ocultarLogin();
+      iniciarApp();
+    } else {
+      err.textContent = (resp && resp.error) ? resp.error : 'Usuario o contraseña incorrectos';
+      err.style.display = 'block';
+      err.classList.add('show');
+      document.getElementById('login-pass').value = '';
+      document.getElementById('login-pass').focus();
+    }
+  } catch (e) {
+    err.textContent = 'Error de conexión. Verifica tu red e intenta de nuevo.';
     err.style.display = 'block';
     err.classList.add('show');
-    document.getElementById('login-pass').value = '';
-    document.getElementById('login-pass').focus();
+    logEvento('error', 'Error en login', e.message);
+  } finally {
+    if (btnLogin) { btnLogin.disabled = false; btnLogin.textContent = 'Entrar'; }
   }
 }
 
 function verificarSesion() {
-  const sesion = localStorage.getItem('appSesion');
+  const sesion = obtenerSesion();
   if (!sesion) return false;
-  try {
-    const partes = atob(sesion).split(':');
-    const ts = partes[partes.length - 1];
-    return (Date.now() - parseInt(ts)) < 7 * 24 * 60 * 60 * 1000;
-  } catch { return false; }
+  // Soportar token nuevo (JSON con expires) y sesión legada (btoa)
+  if (sesion.expires) return Date.now() < sesion.expires;
+  return false;
 }
 
 function cerrarSesion() {
@@ -1545,12 +1633,53 @@ function cerrarSesion() {
   mostrarLogin();
 }
 
-const TARJETAS = {
+// TARJETAS se carga dinámicamente desde la API (action=getConfig).
+// El objeto de fallback se usa si el Apps Script aún no tiene getConfig implementado.
+const TARJETAS_FALLBACK = {
   CENCOSUD:  { color: '#1B4F72', light: '#D6EAF8', periodo: 'del 26 al 25' },
   FALABELLA: { color: '#6C3483', light: '#E8DAEF', periodo: 'del 20 al 19' },
   BCI:       { color: '#1A5276', light: '#D5F5E3', periodo: 'del 10 al 09' },
   TENPO:     { color: '#145A32', light: '#FDEBD0', periodo: 'del 06 al 05' },
 };
+let TARJETAS = { ...TARJETAS_FALLBACK }; // empieza con el fallback hasta que la API responda
+
+// Carga la configuración (tarjetas activas) desde el Apps Script
+async function cargarConfig() {
+  try {
+    const url = `${API_URL}?action=getConfig&secret=${encodeURIComponent(API_SECRET)}`;
+    const resp = await fetch(url);
+    const data = await resp.json();
+    if (data.ok && data.tarjetas && Object.keys(data.tarjetas).length > 0) {
+      TARJETAS = data.tarjetas;
+      logEvento('ok', 'Config cargada desde API', `${Object.keys(TARJETAS).length} tarjetas`);
+    }
+  } catch (e) {
+    logEvento('warn', 'getConfig no disponible, usando fallback', e.message);
+  }
+  renderFiltrosTarjetas();
+}
+
+// Regenera los <select> de tarjetas en Historial, Exportar y Dashboard
+function renderFiltrosTarjetas() {
+  const opciones = Object.entries(TARJETAS)
+    .map(([id, cfg]) => `<option value="${id}">${id.charAt(0) + id.slice(1).toLowerCase()}</option>`)
+    .join('');
+  ['filtro-tarjeta', 'export-tarjeta', 'dash-tarjeta'].forEach(selectId => {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    const prev = sel.value;
+    // Mantener solo la opción "Todas" y agregar las dinámicas
+    sel.querySelectorAll('option:not([value=""])').forEach(o => o.remove());
+    sel.insertAdjacentHTML('beforeend', opciones);
+    if (prev) sel.value = prev;
+  });
+  // Texto informativo en Ajustes
+  const infoEl = document.getElementById('info-tarjetas-activas');
+  if (infoEl) {
+    infoEl.textContent = Object.keys(TARJETAS)
+      .map(id => id.charAt(0) + id.slice(1).toLowerCase()).join(' · ');
+  }
+}
 
 const MESES = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio',
                'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
@@ -1643,6 +1772,9 @@ async function iniciarApp() {
   anioActual = hoy.getFullYear();
   actualizarNavMes();
   cambiarTab('inicio');
+
+  // Cargar configuración dinámica (tarjetas) antes de renderizar
+  await cargarConfig();
 
   renderTarjetaGrid();
   mostrarCargando(true);
@@ -2222,14 +2354,14 @@ function actualizarPantallaAjustes() {
   if (el) el.textContent = gastos.length;
   const sesionEl = document.getElementById('sesion-usuario');
   if (sesionEl) {
-    try {
-      const sesion = localStorage.getItem('appSesion');
-      if (sesion) {
-        const user = atob(sesion).split(':')[0];
-        sesionEl.textContent = 'Conectado como ' + user.charAt(0).toUpperCase() + user.slice(1);
-      }
-    } catch(e) {}
+    const sesion = obtenerSesion();
+    if (sesion) {
+      const nombre = sesion.nombre || sesion.user || '';
+      const rol    = sesion.rol    || 'user';
+      sesionEl.textContent = `Conectado como ${nombre.charAt(0).toUpperCase() + nombre.slice(1)}${rol === 'admin' ? ' · Admin' : ''}`;
+    }
   }
+  renderPanelAdmin();
   renderLog();
 }
 
@@ -2747,6 +2879,139 @@ async function sincronizarPendientes() {
     actualizarTotal();
     showToast(`✓ ${sincronizados} gasto(s) sincronizado(s)`, 'success');
   }
+}
+
+// ============================================================
+// PANEL DE ADMIN
+// ============================================================
+function renderPanelAdmin() {
+  const panel = document.getElementById('panel-admin');
+  if (!panel) return;
+  if (!esAdmin()) { panel.style.display = 'none'; return; }
+  panel.style.display = 'block';
+  adminCargarUsuarios();
+  adminCargarTarjetas();
+}
+
+async function adminCargarUsuarios() {
+  const lista = document.getElementById('admin-usuarios-lista');
+  if (!lista) return;
+  lista.textContent = 'Cargando…';
+  try {
+    const sesion = obtenerSesion();
+    const resp = await apiCall({ action: 'adminGetUsers', token: sesion?.token });
+    if (resp.ok && resp.users) {
+      lista.innerHTML = resp.users.map(u => `
+        <div style="display:flex; align-items:center; justify-content:space-between;
+          padding:8px 0; border-bottom:1px solid var(--border)">
+          <div>
+            <div style="font-weight:600; font-size:14px">${u.nombre || u.user}</div>
+            <div style="font-size:12px; color:var(--muted)">${u.user} · ${u.rol}${u.activo === false ? ' · <span style="color:var(--accent)">inactivo</span>' : ''}</div>
+          </div>
+          <button onclick="adminToggleUsuario('${u.user}', ${u.activo !== false})"
+            style="background:none; border:1px solid var(--border); border-radius:8px;
+            padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; color:var(--muted)">
+            ${u.activo === false ? 'Activar' : 'Desactivar'}
+          </button>
+        </div>`).join('');
+    } else {
+      lista.textContent = resp.error || 'No disponible (actualiza el Apps Script)';
+    }
+  } catch (e) {
+    lista.textContent = 'Error al cargar usuarios: ' + e.message;
+  }
+}
+
+async function adminAgregarUsuario() {
+  const user   = document.getElementById('admin-new-user').value.trim().toLowerCase();
+  const pass   = document.getElementById('admin-new-pass').value;
+  const nombre = document.getElementById('admin-new-nombre').value.trim();
+  const rol    = document.getElementById('admin-new-rol').value;
+  if (!user || !pass || !nombre) { showToast('Completa todos los campos', 'error'); return; }
+  try {
+    const sesion = obtenerSesion();
+    const resp = await apiCall({ action: 'adminAddUser', token: sesion?.token, user, password: pass, nombre, rol });
+    if (resp.ok) {
+      showToast('Usuario agregado', 'success');
+      ['admin-new-user','admin-new-pass','admin-new-nombre'].forEach(id => document.getElementById(id).value = '');
+      adminCargarUsuarios();
+    } else {
+      showToast(resp.error || 'Error al agregar usuario', 'error');
+    }
+  } catch (e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function adminToggleUsuario(user, desactivar) {
+  try {
+    const sesion = obtenerSesion();
+    const resp = await apiCall({ action: 'adminToggleUser', token: sesion?.token, user, activo: !desactivar });
+    if (resp.ok) { showToast(`Usuario ${desactivar ? 'desactivado' : 'activado'}`, 'success'); adminCargarUsuarios(); }
+    else showToast(resp.error || 'Error', 'error');
+  } catch (e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function adminCargarTarjetas() {
+  const lista = document.getElementById('admin-tarjetas-lista');
+  if (!lista) return;
+  lista.textContent = 'Cargando…';
+  try {
+    const sesion = obtenerSesion();
+    const resp = await apiCall({ action: 'adminGetTarjetas', token: sesion?.token });
+    if (resp.ok && resp.tarjetas) {
+      lista.innerHTML = Object.entries(resp.tarjetas).map(([id, cfg]) => `
+        <div style="display:flex; align-items:center; justify-content:space-between;
+          padding:8px 0; border-bottom:1px solid var(--border)">
+          <div style="display:flex; align-items:center; gap:10px">
+            <div style="width:28px; height:28px; border-radius:8px; background:${cfg.color}"></div>
+            <div>
+              <div style="font-weight:600; font-size:14px">${cfg.nombre || id}</div>
+              <div style="font-size:12px; color:var(--muted)">${id} · ${cfg.periodo}</div>
+            </div>
+          </div>
+          <button onclick="adminEliminarTarjeta('${id}')"
+            style="background:none; border:1px solid var(--accent); border-radius:8px;
+            padding:4px 10px; font-size:12px; cursor:pointer; font-family:inherit; color:var(--accent)">
+            Eliminar
+          </button>
+        </div>`).join('');
+    } else {
+      lista.innerHTML = Object.entries(TARJETAS).map(([id, cfg]) => `
+        <div style="display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid var(--border)">
+          <div style="width:28px; height:28px; border-radius:8px; background:${cfg.color}"></div>
+          <div style="font-size:14px; font-weight:600">${id}</div>
+          <div style="font-size:12px; color:var(--muted)">${cfg.periodo}</div>
+        </div>`).join('') + '<div style="font-size:12px; color:var(--accent); margin-top:8px">⚠ Actualiza el Apps Script para gestionar tarjetas dinámicamente</div>';
+    }
+  } catch (e) { lista.textContent = 'Error: ' + e.message; }
+}
+
+async function adminAgregarTarjeta() {
+  const id      = document.getElementById('admin-new-tarjeta-id').value.trim().toUpperCase().replace(/\s+/g,'_');
+  const nombre  = document.getElementById('admin-new-tarjeta-nombre').value.trim();
+  const periodo = document.getElementById('admin-new-tarjeta-periodo').value.trim();
+  const color   = document.getElementById('admin-new-tarjeta-color').value;
+  const light   = document.getElementById('admin-new-tarjeta-light').value;
+  if (!id || !nombre || !periodo) { showToast('Completa todos los campos', 'error'); return; }
+  try {
+    const sesion = obtenerSesion();
+    const resp = await apiCall({ action: 'adminAddTarjeta', token: sesion?.token, id, nombre, periodo, color, light });
+    if (resp.ok) {
+      showToast('Tarjeta agregada', 'success');
+      ['admin-new-tarjeta-id','admin-new-tarjeta-nombre','admin-new-tarjeta-periodo'].forEach(i => document.getElementById(i).value = '');
+      await cargarConfig();
+      adminCargarTarjetas();
+    } else showToast(resp.error || 'Error', 'error');
+  } catch (e) { showToast('Error: ' + e.message, 'error'); }
+}
+
+async function adminEliminarTarjeta(id) {
+  if (!confirm(`¿Eliminar la tarjeta ${id}? Esta acción no elimina gastos ya registrados.`)) return;
+  try {
+    const sesion = obtenerSesion();
+    const resp = await apiCall({ action: 'adminDeleteTarjeta', token: sesion?.token, id });
+    if (resp.ok) { showToast('Tarjeta eliminada', 'success'); await cargarConfig(); adminCargarTarjetas(); }
+    else showToast(resp.error || 'Error', 'error');
+  } catch (e) { showToast('Error: ' + e.message, 'error'); }
 }
 </script>
 </body>
