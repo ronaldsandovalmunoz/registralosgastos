@@ -2202,9 +2202,16 @@ function renderHistorial() {
 
   lista.innerHTML = sorted.map((g) => {
     const cfg = TARJETAS[g.tarjeta] || { color: '#888', light: '#eee' };
-    const fotoHtml = g.foto
-      ? `<img class="tx-foto" src="${g.foto}" alt="boleta"
-           onclick="verFotoModal('${g.foto}', '${g.detalle} · ${formatFecha(g.fecha)}')"
+    // Migrar URLs viejas de drive.google.com/thumbnail al CDN lh3
+    let fotoSrc = g.foto || '';
+    if (fotoSrc.includes('drive.google.com/thumbnail?id=')) {
+      const m = fotoSrc.match(/[?&]id=([^&]+)/);
+      if (m) fotoSrc = `https://lh3.googleusercontent.com/d/${m[1]}=w400`;
+    }
+    const fotoHtml = fotoSrc
+      ? `<img class="tx-foto" src="${fotoSrc}" alt="boleta"
+           onclick="verFotoModal('${fotoSrc}', '${g.detalle} · ${formatFecha(g.fecha)}')"
+           onerror="this.outerHTML='<div class=\\'tx-foto-placeholder\\' onclick=\\'abrirModalFotoHistorial(${g._idx})\\' title=\\'Foto no disponible\\'>📷</div>'"
            title="Ver foto · toca para ampliar">`
       : `<div class="tx-foto-placeholder" title="Toca para agregar foto"
            onclick="abrirModalFotoHistorial(${g._idx})">📄</div>`;
@@ -2568,8 +2575,8 @@ async function subirFotoDrive(base64) {
         body: JSON.stringify({ role: 'reader', type: 'anyone' })
       });
 
-      // URL directa para mostrar como miniatura — funciona en todos los dispositivos
-      const driveUrl = `https://drive.google.com/thumbnail?id=${json.id}&sz=w400`;
+      // URL CDN directa — funciona sin cookies de auth en iOS PWA
+      const driveUrl = `https://lh3.googleusercontent.com/d/${json.id}=w400`;
 
       mostrarDriveStatus(`✓ Guardada en Drive`, 'ok');
       document.getElementById('foto-badge').classList.add('show');
