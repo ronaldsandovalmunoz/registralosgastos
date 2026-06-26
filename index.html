@@ -2201,7 +2201,7 @@ function renderHistorial() {
   // Índices reales en gastos[] para poder eliminar correctamente
   const conIndice = gastos.map((g, i) => ({ ...g, _idx: i }));
   const filtrados = filtro ? conIndice.filter(g => g.tarjeta === filtro) : conIndice;
-  const sorted = [...filtrados].reverse();
+  const sorted = [...filtrados].sort((a, b) => b.fecha.localeCompare(a.fecha));
 
   lista.innerHTML = sorted.map((g) => {
     const cfg = TARJETAS[g.tarjeta] || { color: '#888', light: '#eee' };

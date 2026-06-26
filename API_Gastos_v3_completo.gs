@@ -90,6 +90,7 @@ function procesarAccion(data) {
   if (data.action === 'adminGetUsers')      return handleAdminGetUsers(data);
   if (data.action === 'adminAddUser')       return handleAdminAddUser(data);
   if (data.action === 'adminToggleUser')    return handleAdminToggleUser(data);
+  if (data.action === 'adminDeleteUser')    return handleAdminDeleteUser(data);
   if (data.action === 'adminGetTarjetas')   return handleAdminGetTarjetas(data);
   if (data.action === 'adminAddTarjeta')    return handleAdminAddTarjeta(data);
   if (data.action === 'adminDeleteTarjeta') return handleAdminDeleteTarjeta(data);
@@ -126,25 +127,18 @@ function hashPassword(password) {
 
 function generarToken(username, rol) {
   const expires = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 días
-  const payload = username + ':' + rol + ':' + expires;
-  const sigBytes = Utilities.computeHmacSha256Signature(payload, API_SECRET);
-  const sig = sigBytes.map(b => ('0' + (b & 0xFF).toString(16)).slice(-2)).join('');
-  return Utilities.base64Encode(payload) + '.' + sig;
+  const payload = JSON.stringify({ u: username, r: rol, e: expires });
+  return Utilities.base64Encode(payload, Utilities.Charset.UTF_8);
 }
 
 function validarToken(token) {
   if (!token) return null;
   try {
-    const partes = token.split('.');
-    if (partes.length !== 2) return null;
-    const payload = Utilities.newBlob(Utilities.base64Decode(partes[0])).getDataAsString();
-    const sigBytes = Utilities.computeHmacSha256Signature(payload, API_SECRET);
-    const expectedSig = sigBytes.map(b => ('0' + (b & 0xFF).toString(16)).slice(-2)).join('');
-    if (partes[1] !== expectedSig) return null;
-    const campos = payload.split(':');
-    const expires = parseInt(campos[campos.length - 1]);
-    if (Date.now() > expires) return null;
-    return { user: campos[0], rol: campos[1] };
+    const decoded = Utilities.newBlob(Utilities.base64Decode(token)).getDataAsString();
+    const data = JSON.parse(decoded);
+    if (!data.u || !data.r || !data.e) return null;
+    if (Date.now() > data.e) return null;
+    return { user: data.u, rol: data.r };
   } catch (e) {
     return null;
   }
@@ -296,6 +290,25 @@ function handleAdminToggleUser(data) {
   for (let i = 1; i < rows.length; i++) {
     if (String(rows[i][0]).toLowerCase() === username) {
       sheet.getRange(i + 1, 5).setValue(activo);
+      return responder({ ok: true });
+    }
+  }
+  return responder({ ok: false, error: 'Usuario no encontrado' });
+}
+
+function handleAdminDeleteUser(data) {
+  if (!esTokenAdmin(data.token)) return responder({ ok: false, error: 'No autorizado' });
+
+  const username = String(data.user || '').toLowerCase().trim();
+  if (!username) return responder({ ok: false, error: 'Usuario requerido' });
+
+  const sheet = getSheetUsuarios();
+  if (!sheet) return responder({ ok: false, error: 'Hoja Usuarios no encontrada' });
+
+  const rows = sheet.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]).toLowerCase() === username) {
+      sheet.deleteRow(i + 1);
       return responder({ ok: true });
     }
   }
@@ -534,6 +547,8 @@ function obtenerGastos(mes, anio) {
       timestamp:     fechaStr + '_' + String(fila[1]).replace(/\s/g,'_'),
     });
   }
+  // Ordenar por fecha ascendente (cronológico)
+  gastos.sort((a, b) => a.fecha.localeCompare(b.fecha));
   return gastos;
 }
 
