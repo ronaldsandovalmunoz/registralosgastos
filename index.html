@@ -3506,6 +3506,28 @@ async function renderCiclos() {
 
   container.innerHTML = html || '<div class="ciclos-loading">Sin tarjetas configuradas.</div>';
 }
+
+// ============================================================
+// SERVICE WORKER — auto-update al abrir la app
+// ============================================================
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then(reg => {
+    reg.addEventListener('updatefound', () => {
+      const nuevo = reg.installing;
+      nuevo.addEventListener('statechange', function () {
+        if (this.state === 'installed' && navigator.serviceWorker.controller) {
+          showToast('Actualizando app...', 'ok');
+        }
+      });
+    });
+  });
+
+  // Cuando el nuevo SW toma control → recarga silenciosa
+  let swReloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (!swReloading) { swReloading = true; window.location.reload(); }
+  });
+}
 </script>
 </body>
 </html>
