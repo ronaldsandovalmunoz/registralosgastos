@@ -3369,11 +3369,11 @@ async function cargarMesParaCiclos(anio, mes) {
   if (gastosXMes[key] !== undefined) return;
   gastosXMes[key] = []; // marcar como en progreso para evitar doble fetch
   try {
-    const sesion = obtenerSesion();
-    if (!sesion) return;
-    const resp = await apiCall({ action: 'obtenerGastos', mes, anio, token: sesion.token, user: sesion.user });
-    if (resp.ok && Array.isArray(resp.gastos)) {
-      gastosXMes[key] = resp.gastos;
+    const url = `${API_URL}?action=getGastos&mes=${mes}&anio=${anio}&secret=${encodeURIComponent(API_SECRET)}`;
+    const resp = await fetch(url, { mode: 'cors' });
+    const data = await resp.json();
+    if (data.ok && Array.isArray(data.gastos)) {
+      gastosXMes[key] = data.gastos;
     }
   } catch(e) {
     logEvento('warn', 'cargarMesParaCiclos error', e.message);
