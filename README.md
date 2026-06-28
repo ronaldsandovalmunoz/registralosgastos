@@ -12,6 +12,11 @@ Aplicación web progresiva (PWA) diseñada para familias chilenas que necesitan 
 
 - **Registro de gastos** con validaciones automáticas (campos obligatorios, montos, duplicados)
 - **4 tarjetas de crédito** con períodos de facturación chilenos: Cencosud (26-25), Falabella (20-19), BCI (10-09), Tenpo (06-05)
+- **Tab Ciclos** con ciclo actual por tarjeta (total acumulado, días restantes, fecha de vencimiento) e historial de ciclos cerrados
+- **Panel de administración** para agregar/eliminar usuarios y tarjetas (solo rol admin)
+- **Login multiusuario** con roles (admin/user), sesión persistente de 7 días y autenticación vía Apps Script
+- **Tarjetas dinámicas** cargadas desde la API (no hardcodeadas en el frontend)
+- **Auto-actualización PWA** vía Service Worker: nuevas versiones se aplican solas al abrir la app
 - **División de gastos** entre dos personas (Marcela y Ronald) con validación de montos
 - **Fotos de boletas** directas desde la cámara del teléfono o galería, almacenadas en Google Drive
 - **Dashboard interactivo** con gráficos Chart.js: distribución por tarjeta, gastos históricos por mes, distribución por categoría, comparativo entre personas, top 5 gastos y negocios frecuentes
@@ -21,7 +26,7 @@ Aplicación web progresiva (PWA) diseñada para familias chilenas que necesitan 
 - **Reintento automático** de gastos pendientes de sincronización
 - **Exportar** a CSV y resumen de texto
 - **PWA instalable** en iPhone y Mac vía Safari ("Añadir a pantalla de inicio")
-- **Login multiusuario** con sesión persistente de 7 días
+- **Historial ordenado** por fecha descendente (más reciente primero)
 
 ---
 
@@ -110,14 +115,14 @@ Cada mes tiene su propio sheet (ej: "Junio 2026") con 4 secciones por tarjeta, c
 | I | URL Foto | URL thumbnail de Drive |
 | J | Drive ID | ID del archivo en Drive |
 
-### Períodos de facturación
+### Períodos de facturación y vencimientos
 
-| Tarjeta | Período |
-|---|---|
-| CENCOSUD | Del 26 al 25 del mes siguiente |
-| FALABELLA | Del 20 al 19 del mes siguiente |
-| BCI | Del 10 al 09 del mes siguiente |
-| TENPO | Del 06 al 05 del mes siguiente |
+| Tarjeta | Período | Pago |
+|---|---|---|
+| CENCOSUD | Del 26 al 25 del mes siguiente | Día 10 del mes siguiente al cierre |
+| FALABELLA | Del 20 al 19 del mes siguiente | Día 5 del mes siguiente al cierre |
+| BCI | Del 10 al 09 del mes siguiente | Día 26 del mismo mes que cierra |
+| TENPO | Del 06 al 05 del mes siguiente | Día 20 del mismo mes que cierra |
 
 ---
 
@@ -153,7 +158,7 @@ Cada mes tiene su propio sheet (ej: "Junio 2026") con 4 secciones por tarjeta, c
 
 1. Ir a [script.google.com](https://script.google.com)
 2. Crear un nuevo proyecto
-3. Pegar el contenido de `apps_script_gastos_v2.gs`
+3. Pegar el contenido de `API_Gastos_v7_completo.gs`
 4. Configurar `SHEET_ID` y `API_SECRET`
 5. Implementar como Web App:
    - Ejecutar como: **Yo**
@@ -174,8 +179,7 @@ Cada mes tiene su propio sheet (ej: "Junio 2026") con 4 secciones por tarjeta, c
    - `API_URL`: URL del Apps Script desplegado
    - `API_SECRET`: clave secreta (debe coincidir con Apps Script)
    - `CLIENT_ID`: Client ID de Google Cloud
-   - `USUARIOS`: credenciales de login
-2. Subir `index.html` al repositorio de GitHub
+2. Subir `index.html` y `sw.js` al repositorio de GitHub
 3. Habilitar GitHub Pages en Settings → Pages → Branch: main
 
 ### 5. DNS (opcional — dominio personalizado)
@@ -218,6 +222,9 @@ Cada mes tiene su propio sheet (ej: "Junio 2026") con 4 secciones por tarjeta, c
 |---|---|---|
 | v1.0 | 2026-06-12 | Base estable: registro, sincronización, fotos, historial, exportar |
 | v1.1 | 2026-06-13 | Dashboard mejorado: navegación por meses, gráfico histórico 12 meses, tooltips con $, gráficos responsive |
+| v1.2 | 2026-06-27 | Login multiusuario con roles, panel admin, tarjetas dinámicas, historial ordenado por fecha |
+| v1.3 | 2026-06-27 | Tab Ciclos: ciclo actual y historial por tarjeta con fechas de vencimiento |
+| v1.4 | 2026-06-27 | Service Worker: auto-actualización de la PWA sin reinstalar |
 
 ---
 
