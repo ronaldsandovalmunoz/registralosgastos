@@ -623,6 +623,84 @@
   .badge-pendiente { background: var(--accent); color: white; }
   .badge-sync-ok { background: var(--primary-light, #E8F0EA); color: var(--primary); }
   .drive-conn-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
+
+  /* ===================== CICLOS ===================== */
+  #screen-ciclos { padding: 16px; }
+  .ciclo-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    margin-bottom: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+  .ciclo-card-header {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .ciclo-card-nombre {
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .ciclo-actual {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .ciclo-badge-abierto {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--success);
+    margin-bottom: 6px;
+  }
+  .ciclo-periodo {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .ciclo-total {
+    font-size: 28px;
+    font-weight: 800;
+    font-family: 'Nunito', sans-serif;
+    margin-bottom: 6px;
+  }
+  .ciclo-pago-label {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .ciclo-historico {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .ciclo-historico:last-child { border-bottom: none; }
+  .ciclo-recien-cerrado { background: #FFFBF0; }
+  .ciclo-hist-periodo {
+    font-size: 12px;
+    color: var(--muted);
+    flex: 1;
+  }
+  .ciclo-hist-total {
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+  }
+  .ciclo-hist-pago {
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    min-width: 90px;
+  }
+  .ciclos-loading {
+    text-align: center;
+    padding: 48px 16px;
+    color: var(--muted);
+    font-size: 14px;
+  }
 </style>
 <body>
 
@@ -1164,6 +1242,13 @@
 
 </div>
 
+<!-- ======================== CICLOS ======================== -->
+<div class="screen" id="screen-ciclos">
+  <div id="ciclos-container">
+    <div class="ciclos-loading">Cargando ciclos...</div>
+  </div>
+</div>
+
 <!-- ======================== TAB BAR ======================== -->
 <nav class="tab-bar">
   <button class="tab active" id="tab-inicio" onclick="cambiarTab('inicio')">
@@ -1206,6 +1291,15 @@
       <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/>
     </svg>
     Ajustes
+  </button>
+  <button class="tab" id="tab-ciclos" onclick="cambiarTab('ciclos')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+      <rect x="2" y="5" width="20" height="14" rx="2"/>
+      <line x1="2" y1="10" x2="22" y2="10"/>
+      <line x1="7" y1="15" x2="9" y2="15"/>
+      <line x1="12" y1="15" x2="17" y2="15"/>
+    </svg>
+    Ciclos
   </button>
 </nav>
 
@@ -1844,7 +1938,7 @@ async function iniciarApp() {
   window.addEventListener('resize', ajustarNavSpacer);
   iniciarTimerInactividad();
   const tabGuardado = localStorage.getItem('appTabActual') || 'inicio';
-  const tabsValidos = ['inicio', 'registrar', 'dashboard', 'historial', 'exportar', 'ajustes'];
+  const tabsValidos = ['inicio', 'registrar', 'dashboard', 'historial', 'exportar', 'ajustes', 'ciclos'];
   cambiarTab(tabsValidos.includes(tabGuardado) ? tabGuardado : 'inicio');
 
   // Cargar configuración dinámica (tarjetas) antes de renderizar
@@ -1895,7 +1989,7 @@ function cambiarTab(tab) {
   document.getElementById('nav-title').textContent = {
     inicio: 'Mis Gastos', registrar: 'Registrar gasto',
     dashboard: 'Dashboard', historial: 'Historial',
-    exportar: 'Exportar', ajustes: 'Ajustes'
+    exportar: 'Exportar', ajustes: 'Ajustes', ciclos: 'Ciclos'
   }[tab] || '';
 
   // Mostrar flechas de mes en Inicio, Historial y Dashboard
@@ -1904,7 +1998,7 @@ function cambiarTab(tab) {
   document.getElementById('nav-sub-static').style.display = conFlechas ? 'none'  : 'block';
 
   if (!conFlechas) {
-    const subs = { registrar: 'Nuevo registro', exportar: 'Selecciona mes y tarjeta', ajustes: 'Configuración' };
+    const subs = { registrar: 'Nuevo registro', exportar: 'Selecciona mes y tarjeta', ajustes: 'Configuración', ciclos: 'Facturación por tarjeta' };
     document.getElementById('nav-sub-static').textContent = subs[tab] || '';
   }
 
@@ -1916,6 +2010,7 @@ function cambiarTab(tab) {
   if (tab === 'ajustes')   actualizarPantallaAjustes();
   if (tab === 'dashboard') { renderCategoriaGrid(); setTimeout(renderDashboard, 100); }
   if (tab === 'registrar') { renderCategoriaGrid(); }
+  if (tab === 'ciclos')    { renderCiclos(); }
 }
 
 function irARegistrar() { cambiarTab('registrar'); }
@@ -3250,6 +3345,161 @@ async function adminEliminarTarjeta(id) {
     }
   }, { passive: true });
 })();
+
+// ============================================================
+// CICLOS DE FACTURACIÓN
+// ============================================================
+const CICLOS_CONFIG = {
+  CENCOSUD:  { diaInicio: 26, diaPago: 10, offsetPago: 1 },
+  FALABELLA: { diaInicio: 20, diaPago: 5,  offsetPago: 1 },
+  BCI:       { diaInicio: 10, diaPago: 26, offsetPago: 0 },
+  TENPO:     { diaInicio: 6,  diaPago: 20, offsetPago: 0 },
+};
+
+let gastosXMes = {}; // cache por "YYYY-MM"
+
+async function cargarMesParaCiclos(anio, mes) {
+  const key = `${anio}-${String(mes).padStart(2, '0')}`;
+  if (gastosXMes[key] !== undefined) return;
+  gastosXMes[key] = []; // marcar como en progreso para evitar doble fetch
+  try {
+    const sesion = obtenerSesion();
+    if (!sesion) return;
+    const resp = await apiCall({ action: 'obtenerGastos', mes, anio, token: sesion.token, user: sesion.user });
+    if (resp.ok && Array.isArray(resp.gastos)) {
+      gastosXMes[key] = resp.gastos;
+    }
+  } catch(e) {
+    logEvento('warn', 'cargarMesParaCiclos error', e.message);
+  }
+}
+
+// Genera el ciclo actual + numHistorico ciclos anteriores para una tarjeta
+function generarCiclos(tarjetaId, numHistorico) {
+  const cfg = CICLOS_CONFIG[tarjetaId];
+  if (!cfg) return [];
+
+  const hoy = new Date();
+  const dd = hoy.getDate(), dm = hoy.getMonth() + 1, da = hoy.getFullYear();
+
+  // Mes/año donde comenzó el ciclo actual
+  let startMes, startAnio;
+  if (dd >= cfg.diaInicio) {
+    startMes = dm; startAnio = da;
+  } else {
+    startMes = dm - 1; startAnio = da;
+    if (startMes <= 0) { startMes = 12; startAnio--; }
+  }
+
+  const total = numHistorico + 1; // actual + histórico
+  const ciclos = [];
+
+  for (let i = 0; i < total; i++) {
+    let sm = startMes - i;
+    let sa = startAnio;
+    while (sm <= 0) { sm += 12; sa--; }
+
+    const inicio = new Date(sa, sm - 1, cfg.diaInicio);
+
+    let finMes = sm + 1, finAnio = sa;
+    if (finMes > 12) { finMes = 1; finAnio++; }
+    const fin = new Date(finAnio, finMes - 1, cfg.diaInicio - 1);
+
+    let pagoMes = finMes + cfg.offsetPago;
+    let pagoAnio = finAnio;
+    if (pagoMes > 12) { pagoMes -= 12; pagoAnio++; }
+
+    ciclos.push({
+      inicio,
+      fin,
+      pagoMes,
+      pagoAnio,
+      diaPago: cfg.diaPago,
+      abierto: i === 0 && hoy <= fin,
+    });
+  }
+  return ciclos;
+}
+
+function calcularTotalCiclo(tarjetaId, inicio, fin) {
+  let total = 0;
+  const mStart = new Date(inicio.getFullYear(), inicio.getMonth(), 1);
+  const mEnd   = new Date(fin.getFullYear(), fin.getMonth(), 1);
+  const cur = new Date(mStart);
+  while (cur <= mEnd) {
+    const anio = cur.getFullYear();
+    const mes  = cur.getMonth() + 1;
+    const key  = `${anio}-${String(mes).padStart(2, '0')}`;
+    (gastosXMes[key] || []).forEach(g => {
+      if (g.tarjeta !== tarjetaId) return;
+      const fg = new Date(g.fecha + 'T00:00:00');
+      if (fg >= inicio && fg <= fin) total += Number(g.monto);
+    });
+    cur.setMonth(cur.getMonth() + 1);
+  }
+  return total;
+}
+
+function fmtFecha(d) {
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+}
+
+async function renderCiclos() {
+  const container = document.getElementById('ciclos-container');
+  if (!container) return;
+  container.innerHTML = '<div class="ciclos-loading">Cargando ciclos...</div>';
+
+  const hoy = new Date();
+  // Pre-cargar los últimos 4 meses
+  const promises = [];
+  for (let i = 0; i < 4; i++) {
+    let m = hoy.getMonth() + 1 - i;
+    let a = hoy.getFullYear();
+    if (m <= 0) { m += 12; a--; }
+    promises.push(cargarMesParaCiclos(a, m));
+  }
+  await Promise.all(promises);
+
+  const tarjetas = Object.keys(CICLOS_CONFIG).filter(t => TARJETAS[t]);
+  let html = '';
+
+  for (const tid of tarjetas) {
+    const tarjCfg = TARJETAS[tid] || {};
+    const color = tarjCfg.color || '#666';
+    const light = tarjCfg.light || '#f5f5f5';
+    const ciclos = generarCiclos(tid, 3); // actual + 3 anteriores
+
+    html += `<div class="ciclo-card" style="border-left:4px solid ${color}">
+      <div class="ciclo-card-header" style="background:${light}">
+        <span class="ciclo-card-nombre" style="color:${color}">${tid}</span>
+      </div>`;
+
+    ciclos.forEach((c, idx) => {
+      const total = calcularTotalCiclo(tid, c.inicio, c.fin);
+      const pagoStr = `${String(c.diaPago).padStart(2,'0')}/${String(c.pagoMes).padStart(2,'0')}/${c.pagoAnio}`;
+
+      if (c.abierto) {
+        const diasRestantes = Math.max(0, Math.ceil((c.fin - hoy) / 86400000));
+        html += `<div class="ciclo-actual">
+          <div class="ciclo-badge-abierto">● Ciclo actual — ${diasRestantes} día${diasRestantes !== 1 ? 's' : ''} restante${diasRestantes !== 1 ? 's' : ''}</div>
+          <div class="ciclo-periodo">${fmtFecha(c.inicio)} → ${fmtFecha(c.fin)}</div>
+          <div class="ciclo-total" style="color:${color}">${formatMonto(total)}</div>
+          <div class="ciclo-pago-label">Vencimiento pago: <strong>${pagoStr}</strong></div>
+        </div>`;
+      } else {
+        html += `<div class="ciclo-historico${idx === 0 ? ' ciclo-recien-cerrado' : ''}">
+          <div class="ciclo-hist-periodo">${fmtFecha(c.inicio)} → ${fmtFecha(c.fin)}</div>
+          <div class="ciclo-hist-total" style="color:${color}">${formatMonto(total)}</div>
+          <div class="ciclo-hist-pago">Pago: ${pagoStr}</div>
+        </div>`;
+      }
+    });
+
+    html += '</div>';
+  }
+
+  container.innerHTML = html || '<div class="ciclos-loading">Sin tarjetas configuradas.</div>';
+}
 </script>
 </body>
 </html>
