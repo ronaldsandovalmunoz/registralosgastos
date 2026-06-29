@@ -3445,9 +3445,9 @@ function calcularTotalCiclo(tarjetaId, cicloStart) {
       const cuotas = Math.max(1, Number(g.cuotas) || 1);
       const fg = new Date(g.fecha + 'T00:00:00');
       if (!contribuyeAlCiclo(cfg, fg, cuotas, cicloStart)) return;
-      total   += Math.round(Number(g.monto)   / cuotas);
-      marcela += Math.round(Number(g.marcela) / cuotas);
-      ronald  += Math.round(Number(g.ronald)  / cuotas);
+      total   += Math.ceil(Number(g.monto)   / cuotas);
+      marcela += Math.ceil(Number(g.marcela) / cuotas);
+      ronald  += Math.ceil(Number(g.ronald)  / cuotas);
     });
   });
   return { total, marcela, ronald };
