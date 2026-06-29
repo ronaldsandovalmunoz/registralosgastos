@@ -1255,9 +1255,29 @@
           <input id="admin-new-tarjeta-nombre" type="text" placeholder="Nombre visible (ej: Banco Estado)"
             style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 12px;
             font-size:14px; font-family:inherit; margin-bottom:8px; background:var(--bg); box-sizing:border-box">
-          <input id="admin-new-tarjeta-periodo" type="text" placeholder="Período (ej: del 01 al 31)"
+          <input id="admin-new-tarjeta-periodo" type="text" placeholder="Período (ej: del 26 al 25)"
             style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 12px;
             font-size:14px; font-family:inherit; margin-bottom:8px; background:var(--bg); box-sizing:border-box">
+          <div style="display:flex; gap:8px; margin-bottom:8px">
+            <div style="flex:1">
+              <div style="font-size:11px; color:var(--muted); margin-bottom:4px">Día inicio ciclo</div>
+              <input id="admin-new-tarjeta-diainicio" type="number" placeholder="26" min="1" max="31"
+                style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 12px;
+                font-size:14px; font-family:inherit; background:var(--bg); box-sizing:border-box">
+            </div>
+            <div style="flex:1">
+              <div style="font-size:11px; color:var(--muted); margin-bottom:4px">Día de pago</div>
+              <input id="admin-new-tarjeta-diapago" type="number" placeholder="10" min="1" max="31"
+                style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 12px;
+                font-size:14px; font-family:inherit; background:var(--bg); box-sizing:border-box">
+            </div>
+            <div style="flex:1">
+              <div style="font-size:11px; color:var(--muted); margin-bottom:4px">Mes pago (+0/+1)</div>
+              <input id="admin-new-tarjeta-offsetpago" type="number" placeholder="1" min="0" max="2"
+                style="width:100%; border:1px solid var(--border); border-radius:8px; padding:8px 12px;
+                font-size:14px; font-family:inherit; background:var(--bg); box-sizing:border-box">
+            </div>
+          </div>
           <div style="display:flex; gap:8px; margin-bottom:12px">
             <div style="flex:1">
               <div style="font-size:11px; color:var(--muted); margin-bottom:4px">Color principal</div>
@@ -1846,6 +1866,16 @@ async function cargarConfig() {
     if (data.ok && data.tarjetas && Object.keys(data.tarjetas).length > 0) {
       TARJETAS = data.tarjetas;
       logEvento('ok', 'Config cargada desde API', `${Object.keys(TARJETAS).length} tarjetas`);
+      // Actualizar CICLOS_CONFIG con datos de la API (dia_inicio, dia_pago, offset_pago)
+      Object.entries(TARJETAS).forEach(([id, cfg]) => {
+        if (cfg.diaInicio && cfg.diaPago != null) {
+          CICLOS_CONFIG[id] = {
+            diaInicio:  Number(cfg.diaInicio),
+            diaPago:    Number(cfg.diaPago),
+            offsetPago: Number(cfg.offsetPago) || 0,
+          };
+        }
+      });
     }
   } catch (e) {
     logEvento('warn', 'getConfig no disponible, usando fallback', e.message);
@@ -3216,18 +3246,24 @@ async function adminCargarTarjetas() {
 }
 
 async function adminAgregarTarjeta() {
-  const id      = document.getElementById('admin-new-tarjeta-id').value.trim().toUpperCase().replace(/\s+/g,'_');
-  const nombre  = document.getElementById('admin-new-tarjeta-nombre').value.trim();
-  const periodo = document.getElementById('admin-new-tarjeta-periodo').value.trim();
-  const color   = document.getElementById('admin-new-tarjeta-color').value;
-  const light   = document.getElementById('admin-new-tarjeta-light').value;
+  const id         = document.getElementById('admin-new-tarjeta-id').value.trim().toUpperCase().replace(/\s+/g,'_');
+  const nombre     = document.getElementById('admin-new-tarjeta-nombre').value.trim();
+  const periodo    = document.getElementById('admin-new-tarjeta-periodo').value.trim();
+  const color      = document.getElementById('admin-new-tarjeta-color').value;
+  const light      = document.getElementById('admin-new-tarjeta-light').value;
+  const diaInicio  = parseInt(document.getElementById('admin-new-tarjeta-diainicio').value) || 0;
+  const diaPago    = parseInt(document.getElementById('admin-new-tarjeta-diapago').value) || 0;
+  const offsetPago = parseInt(document.getElementById('admin-new-tarjeta-offsetpago').value) || 0;
   if (!id || !nombre || !periodo) { showToast('Completa todos los campos', 'error'); return; }
+  if (!diaInicio || !diaPago) { showToast('Ingresa día inicio ciclo y día de pago', 'error'); return; }
   try {
     const sesion = obtenerSesion();
-    const resp = await apiCall({ action: 'adminAddTarjeta', token: sesion?.token, id, nombre, periodo, color, light });
+    const resp = await apiCall({ action: 'adminAddTarjeta', token: sesion?.token, id, nombre, periodo, color, light, diaInicio, diaPago, offsetPago });
     if (resp.ok) {
       showToast('Tarjeta agregada', 'success');
-      ['admin-new-tarjeta-id','admin-new-tarjeta-nombre','admin-new-tarjeta-periodo'].forEach(i => document.getElementById(i).value = '');
+      ['admin-new-tarjeta-id','admin-new-tarjeta-nombre','admin-new-tarjeta-periodo',
+       'admin-new-tarjeta-diainicio','admin-new-tarjeta-diapago','admin-new-tarjeta-offsetpago']
+        .forEach(i => document.getElementById(i).value = '');
       await cargarConfig();
       adminCargarTarjetas();
     } else showToast(resp.error || 'Error', 'error');
@@ -3505,7 +3541,7 @@ async function renderCiclos() {
   }
   await Promise.all(promises);
 
-  const tarjetas = Object.keys(CICLOS_CONFIG).filter(t => TARJETAS[t]);
+  const tarjetas = Object.keys(TARJETAS).filter(t => CICLOS_CONFIG[t]);
   let html = '';
   let idx = 0;
 

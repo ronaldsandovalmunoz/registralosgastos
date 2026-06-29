@@ -213,14 +213,17 @@ function handleGetConfig() {
   const tarjetas = {};
 
   for (let i = 1; i < rows.length; i++) {
-    const [id, nombre, color, light, periodo, activo] = rows[i];
+    const [id, nombre, color, light, periodo, activo, diaInicio, diaPago, offsetPago] = rows[i];
     if (!id) continue;
     if (activo === false || String(activo).toUpperCase() === 'FALSE') continue;
     tarjetas[String(id).toUpperCase()] = {
-      nombre:  nombre  || id,
-      color:   color   || '#888888',
-      light:   light   || '#EEEEEE',
-      periodo: periodo || ''
+      nombre:     nombre    || id,
+      color:      color     || '#888888',
+      light:      light     || '#EEEEEE',
+      periodo:    periodo   || '',
+      diaInicio:  Number(diaInicio)  || null,
+      diaPago:    Number(diaPago)    || null,
+      offsetPago: Number(offsetPago) || 0,
     };
   }
 
@@ -328,11 +331,14 @@ function handleAdminGetTarjetas(data) {
 function handleAdminAddTarjeta(data) {
   if (!esTokenAdmin(data.token)) return responder({ ok: false, error: 'No autorizado' });
 
-  const id      = String(data.id      || '').toUpperCase().trim().replace(/\s+/g, '_');
-  const nombre  = String(data.nombre  || id);
-  const color   = String(data.color   || '#888888');
-  const light   = String(data.light   || '#EEEEEE');
-  const periodo = String(data.periodo || '');
+  const id         = String(data.id      || '').toUpperCase().trim().replace(/\s+/g, '_');
+  const nombre     = String(data.nombre  || id);
+  const color      = String(data.color   || '#888888');
+  const light      = String(data.light   || '#EEEEEE');
+  const periodo    = String(data.periodo || '');
+  const diaInicio  = Number(data.diaInicio)  || '';
+  const diaPago    = Number(data.diaPago)    || '';
+  const offsetPago = Number(data.offsetPago) || 0;
 
   if (!id) return responder({ ok: false, error: 'ID requerido' });
 
@@ -346,7 +352,7 @@ function handleAdminAddTarjeta(data) {
     }
   }
 
-  sheet.appendRow([id, nombre, color, light, periodo, true]);
+  sheet.appendRow([id, nombre, color, light, periodo, true, diaInicio, diaPago, offsetPago]);
   return responder({ ok: true });
 }
 
@@ -398,10 +404,10 @@ function setupInicialUsuarios() {
 
 function setupInicialTarjetas() {
   const tarjetas = [
-    ['CENCOSUD',  'Cencosud',  '#1B4F72', '#D6EAF8', 'del 26 al 25', true],
-    ['FALABELLA', 'Falabella', '#6C3483', '#E8DAEF', 'del 20 al 19', true],
-    ['BCI',       'BCI',       '#1A5276', '#D5F5E3', 'del 10 al 09', true],
-    ['TENPO',     'Tenpo',     '#145A32', '#FDEBD0', 'del 06 al 05', true],
+    ['CENCOSUD',  'Cencosud',  '#1B4F72', '#D6EAF8', 'del 26 al 25', true, 26, 10, 1],
+    ['FALABELLA', 'Falabella', '#6C3483', '#E8DAEF', 'del 20 al 19', true, 20,  5, 1],
+    ['BCI',       'BCI',       '#1A5276', '#D5F5E3', 'del 10 al 09', true, 10, 26, 0],
+    ['TENPO',     'Tenpo',     '#145A32', '#FDEBD0', 'del 06 al 05', true,  6, 20, 0],
   ];
 
   const ss = SpreadsheetApp.openById(SHEET_ID);
