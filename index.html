@@ -669,37 +669,71 @@
     font-size: 28px;
     font-weight: 800;
     font-family: 'Nunito', sans-serif;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
+  .ciclo-chevron {
+    font-size: 16px;
+    font-weight: 400;
+    transition: transform 0.2s;
+  }
+  .ciclo-chevron.abierto { transform: rotate(180deg); }
+  .ciclo-desglose {
+    background: rgba(0,0,0,0.04);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+    margin: 8px 0;
+  }
+  .ciclo-desglose-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    padding: 4px 0;
+    color: var(--text);
+  }
+  .ciclo-desglose-row span { color: var(--muted); }
   .ciclo-pago-label {
     font-size: 13px;
     color: var(--muted);
+    margin-top: 4px;
   }
   .ciclo-historico {
     padding: 12px 16px;
     border-bottom: 1px solid var(--border);
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     justify-content: space-between;
     gap: 8px;
   }
   .ciclo-historico:last-child { border-bottom: none; }
   .ciclo-recien-cerrado { background: #FFFBF0; }
+  .ciclo-hist-left { flex: 1; }
   .ciclo-hist-periodo {
     font-size: 12px;
     color: var(--muted);
-    flex: 1;
-  }
-  .ciclo-hist-total {
-    font-size: 15px;
-    font-weight: 700;
-    font-family: 'Nunito', sans-serif;
+    margin-bottom: 2px;
   }
   .ciclo-hist-pago {
     font-size: 11px;
     color: var(--muted);
-    text-align: right;
-    min-width: 90px;
+  }
+  .ciclo-hist-right { text-align: right; }
+  .ciclo-hist-total {
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .ciclo-desglose-hist {
+    text-align: left;
+    margin-top: 6px;
   }
   .ciclos-loading {
     text-align: center;
@@ -3367,7 +3401,7 @@ let gastosXMes = {}; // cache por "YYYY-MM"
 async function cargarMesParaCiclos(anio, mes) {
   const key = `${anio}-${String(mes).padStart(2, '0')}`;
   if (gastosXMes[key] !== undefined) return;
-  gastosXMes[key] = []; // marcar como en progreso para evitar doble fetch
+  gastosXMes[key] = [];
   try {
     const url = `${API_URL}?action=getGastos&mes=${mes}&anio=${anio}&secret=${encodeURIComponent(API_SECRET)}`;
     const resp = await fetch(url, { mode: 'cors' });
@@ -3380,74 +3414,80 @@ async function cargarMesParaCiclos(anio, mes) {
   }
 }
 
-// Genera el ciclo actual + numHistorico ciclos anteriores para una tarjeta
+// Fecha de inicio del ciclo que contiene la fecha d para una tarjeta
+function getCicloStartDate(cfg, d) {
+  const day = d.getDate(), m = d.getMonth(), y = d.getFullYear();
+  if (day >= cfg.diaInicio) {
+    return new Date(y, m, cfg.diaInicio);
+  } else {
+    return new Date(m === 0 ? y - 1 : y, m === 0 ? 11 : m - 1, cfg.diaInicio);
+  }
+}
+
+// True si el gasto (fecha, cuotas) contribuye al ciclo que empieza en targetStart
+function contribuyeAlCiclo(cfg, fechaGasto, cuotas, targetStart) {
+  const c1 = getCicloStartDate(cfg, fechaGasto);
+  for (let i = 0; i < cuotas; i++) {
+    const ci = new Date(c1.getFullYear(), c1.getMonth() + i, cfg.diaInicio);
+    if (ci.getTime() === targetStart.getTime()) return true;
+  }
+  return false;
+}
+
+// Suma valor cuota de todos los gastos que contribuyen al ciclo (incluyendo cuotas de meses anteriores)
+// Retorna { total, marcela, ronald }
+function calcularTotalCiclo(tarjetaId, cicloStart) {
+  const cfg = CICLOS_CONFIG[tarjetaId];
+  let total = 0, marcela = 0, ronald = 0;
+  Object.values(gastosXMes).forEach(arr => {
+    (arr || []).forEach(g => {
+      if (g.tarjeta !== tarjetaId) return;
+      const cuotas = Math.max(1, Number(g.cuotas) || 1);
+      const fg = new Date(g.fecha + 'T00:00:00');
+      if (!contribuyeAlCiclo(cfg, fg, cuotas, cicloStart)) return;
+      total   += Number(g.monto)   / cuotas;
+      marcela += Number(g.marcela) / cuotas;
+      ronald  += Number(g.ronald)  / cuotas;
+    });
+  });
+  return { total, marcela, ronald };
+}
+
+// Genera el ciclo actual + numHistorico ciclos anteriores
 function generarCiclos(tarjetaId, numHistorico) {
   const cfg = CICLOS_CONFIG[tarjetaId];
   if (!cfg) return [];
-
   const hoy = new Date();
   const dd = hoy.getDate(), dm = hoy.getMonth() + 1, da = hoy.getFullYear();
-
-  // Mes/año donde comenzó el ciclo actual
-  let startMes, startAnio;
-  if (dd >= cfg.diaInicio) {
-    startMes = dm; startAnio = da;
-  } else {
-    startMes = dm - 1; startAnio = da;
-    if (startMes <= 0) { startMes = 12; startAnio--; }
-  }
-
-  const total = numHistorico + 1; // actual + histórico
+  let startMes = dd >= cfg.diaInicio ? dm : dm - 1;
+  let startAnio = da;
+  if (startMes <= 0) { startMes = 12; startAnio--; }
   const ciclos = [];
-
-  for (let i = 0; i < total; i++) {
-    let sm = startMes - i;
-    let sa = startAnio;
+  for (let i = 0; i < numHistorico + 1; i++) {
+    let sm = startMes - i, sa = startAnio;
     while (sm <= 0) { sm += 12; sa--; }
-
     const inicio = new Date(sa, sm - 1, cfg.diaInicio);
-
     let finMes = sm + 1, finAnio = sa;
     if (finMes > 12) { finMes = 1; finAnio++; }
     const fin = new Date(finAnio, finMes - 1, cfg.diaInicio - 1);
-
-    let pagoMes = finMes + cfg.offsetPago;
-    let pagoAnio = finAnio;
+    let pagoMes = finMes + cfg.offsetPago, pagoAnio = finAnio;
     if (pagoMes > 12) { pagoMes -= 12; pagoAnio++; }
-
-    ciclos.push({
-      inicio,
-      fin,
-      pagoMes,
-      pagoAnio,
-      diaPago: cfg.diaPago,
-      abierto: i === 0 && hoy <= fin,
-    });
+    ciclos.push({ inicio, fin, pagoMes, pagoAnio, diaPago: cfg.diaPago, abierto: i === 0 && hoy <= fin });
   }
   return ciclos;
 }
 
-function calcularTotalCiclo(tarjetaId, inicio, fin) {
-  let total = 0;
-  const mStart = new Date(inicio.getFullYear(), inicio.getMonth(), 1);
-  const mEnd   = new Date(fin.getFullYear(), fin.getMonth(), 1);
-  const cur = new Date(mStart);
-  while (cur <= mEnd) {
-    const anio = cur.getFullYear();
-    const mes  = cur.getMonth() + 1;
-    const key  = `${anio}-${String(mes).padStart(2, '0')}`;
-    (gastosXMes[key] || []).forEach(g => {
-      if (g.tarjeta !== tarjetaId) return;
-      const fg = new Date(g.fecha + 'T00:00:00');
-      if (fg >= inicio && fg <= fin) total += Number(g.monto);
-    });
-    cur.setMonth(cur.getMonth() + 1);
-  }
-  return total;
-}
-
 function fmtFecha(d) {
   return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+}
+
+function toggleDesgloseCiclo(id) {
+  const el = document.getElementById(id);
+  const ch = document.getElementById('ch-' + id);
+  if (!el) return;
+  const abierto = el.style.display !== 'none';
+  el.style.display = abierto ? 'none' : 'block';
+  if (ch) ch.className = 'ciclo-chevron' + (abierto ? '' : ' abierto');
 }
 
 async function renderCiclos() {
@@ -3456,11 +3496,10 @@ async function renderCiclos() {
   container.innerHTML = '<div class="ciclos-loading">Cargando ciclos...</div>';
 
   const hoy = new Date();
-  // Pre-cargar los últimos 4 meses
+  // Cargar 7 meses para cubrir cuotas de hasta 6 meses atrás
   const promises = [];
-  for (let i = 0; i < 4; i++) {
-    let m = hoy.getMonth() + 1 - i;
-    let a = hoy.getFullYear();
+  for (let i = 0; i < 7; i++) {
+    let m = hoy.getMonth() + 1 - i, a = hoy.getFullYear();
     if (m <= 0) { m += 12; a--; }
     promises.push(cargarMesParaCiclos(a, m));
   }
@@ -3468,35 +3507,53 @@ async function renderCiclos() {
 
   const tarjetas = Object.keys(CICLOS_CONFIG).filter(t => TARJETAS[t]);
   let html = '';
+  let idx = 0;
 
   for (const tid of tarjetas) {
     const tarjCfg = TARJETAS[tid] || {};
     const color = tarjCfg.color || '#666';
     const light = tarjCfg.light || '#f5f5f5';
-    const ciclos = generarCiclos(tid, 3); // actual + 3 anteriores
+    const ciclos = generarCiclos(tid, 3);
 
     html += `<div class="ciclo-card" style="border-left:4px solid ${color}">
       <div class="ciclo-card-header" style="background:${light}">
         <span class="ciclo-card-nombre" style="color:${color}">${tid}</span>
       </div>`;
 
-    ciclos.forEach((c, idx) => {
-      const total = calcularTotalCiclo(tid, c.inicio, c.fin);
+    ciclos.forEach((c, ci) => {
+      const { total, marcela, ronald } = calcularTotalCiclo(tid, c.inicio);
       const pagoStr = `${String(c.diaPago).padStart(2,'0')}/${String(c.pagoMes).padStart(2,'0')}/${c.pagoAnio}`;
+      const did = `dg-${idx++}`;
 
       if (c.abierto) {
-        const diasRestantes = Math.max(0, Math.ceil((c.fin - hoy) / 86400000));
+        const dias = Math.max(0, Math.ceil((c.fin - hoy) / 86400000));
         html += `<div class="ciclo-actual">
-          <div class="ciclo-badge-abierto">● Ciclo actual — ${diasRestantes} día${diasRestantes !== 1 ? 's' : ''} restante${diasRestantes !== 1 ? 's' : ''}</div>
+          <div class="ciclo-badge-abierto">● Ciclo actual — ${dias} día${dias !== 1 ? 's' : ''} restante${dias !== 1 ? 's' : ''}</div>
           <div class="ciclo-periodo">${fmtFecha(c.inicio)} → ${fmtFecha(c.fin)}</div>
-          <div class="ciclo-total" style="color:${color}">${formatMonto(total)}</div>
+          <div class="ciclo-total" style="color:${color}" onclick="toggleDesgloseCiclo('${did}')">
+            ${formatMonto(total)}<span class="ciclo-chevron" id="ch-${did}">▾</span>
+          </div>
+          <div id="${did}" class="ciclo-desglose" style="display:none">
+            <div class="ciclo-desglose-row"><span>Marcela</span><strong>${formatMonto(marcela)}</strong></div>
+            <div class="ciclo-desglose-row"><span>Ronald</span><strong>${formatMonto(ronald)}</strong></div>
+          </div>
           <div class="ciclo-pago-label">Vencimiento pago: <strong>${pagoStr}</strong></div>
         </div>`;
       } else {
-        html += `<div class="ciclo-historico${idx === 0 ? ' ciclo-recien-cerrado' : ''}">
-          <div class="ciclo-hist-periodo">${fmtFecha(c.inicio)} → ${fmtFecha(c.fin)}</div>
-          <div class="ciclo-hist-total" style="color:${color}">${formatMonto(total)}</div>
-          <div class="ciclo-hist-pago">Pago: ${pagoStr}</div>
+        html += `<div class="ciclo-historico${ci === 0 ? ' ciclo-recien-cerrado' : ''}">
+          <div class="ciclo-hist-left">
+            <div class="ciclo-hist-periodo">${fmtFecha(c.inicio)} → ${fmtFecha(c.fin)}</div>
+            <div class="ciclo-hist-pago">Pago: ${pagoStr}</div>
+          </div>
+          <div class="ciclo-hist-right">
+            <div class="ciclo-hist-total" style="color:${color}" onclick="toggleDesgloseCiclo('${did}')">
+              ${formatMonto(total)}<span class="ciclo-chevron" id="ch-${did}">▾</span>
+            </div>
+            <div id="${did}" class="ciclo-desglose ciclo-desglose-hist" style="display:none">
+              <div class="ciclo-desglose-row"><span>Marcela</span><strong>${formatMonto(marcela)}</strong></div>
+              <div class="ciclo-desglose-row"><span>Ronald</span><strong>${formatMonto(ronald)}</strong></div>
+            </div>
+          </div>
         </div>`;
       }
     });

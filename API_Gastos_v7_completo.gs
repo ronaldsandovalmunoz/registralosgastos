@@ -460,9 +460,11 @@ function encontrarFilaLibre(sheet, tarjeta) {
   const datos = sheet.getDataRange().getValues();
   const TARJETAS = getTarjetasActivas();
   let dentroTarjeta = false;
+  let filaTotal = -1;
+  let dataStart = -1;
 
   for (let i = 0; i < datos.length; i++) {
-    const celda = String(datos[i][0]).toUpperCase();
+    const celda = String(datos[i][0]).trim().toUpperCase();
 
     if (celda.includes(tarjeta.toUpperCase())) {
       dentroTarjeta = true;
@@ -472,14 +474,70 @@ function encontrarFilaLibre(sheet, tarjeta) {
     if (dentroTarjeta) {
       const esOtraTarjeta = Object.keys(TARJETAS).some(t => celda.includes(t));
       if (esOtraTarjeta) break;
-      if (celda === 'FECHA') continue;
+
+      if (celda === 'FECHA') {
+        dataStart = i + 2; // fila 1-indexed donde empieza la data (después de FECHA)
+        continue;
+      }
+
+      if (celda === 'TOTAL') {
+        filaTotal = i + 1; // fila 1-indexed de la fila TOTAL
+        break;
+      }
+
+      // Fila libre: col A y col B vacías
       if ((datos[i][0] === '' || datos[i][0] === null) &&
           (datos[i][1] === '' || datos[i][1] === null)) {
         return i + 1;
       }
     }
   }
+
+  // Sin fila libre → expandir sección en 5 filas
+  if (filaTotal > 0 && dataStart > 0) {
+    return expandirSeccionTarjeta(sheet, tarjeta, filaTotal, dataStart);
+  }
+
   throw new Error('No se encontró fila libre para ' + tarjeta);
+}
+
+function expandirSeccionTarjeta(sheet, tarjeta, filaTotal, dataStart) {
+  const EXPAND = 5;
+
+  // Insertar EXPAND filas justo antes de la fila TOTAL
+  sheet.insertRowsBefore(filaTotal, EXPAND);
+
+  // Color de fondo de la tarjeta
+  const TARJETAS = getTarjetasActivas();
+  const bgColor = (TARJETAS[tarjeta.toUpperCase()] || {}).color || '#EEEEEE';
+
+  // Formatear las nuevas filas
+  for (let i = 0; i < EXPAND; i++) {
+    const fila = filaTotal + i;
+    const bg = i % 2 === 0 ? bgColor : '#FFFFFF';
+    sheet.getRange(fila, 1, 1, 10).setBackground(bg).setFontSize(9);
+    sheet.getRange(fila, 3).setNumberFormat('#,##0');
+    sheet.getRange(fila, 5)
+      .setFormula(`=IFERROR(IF(D${fila}>1,C${fila}/D${fila},C${fila}),"")`)
+      .setNumberFormat('#,##0');
+    sheet.getRange(fila, 6).setNumberFormat('#,##0');
+    sheet.getRange(fila, 7).setNumberFormat('#,##0');
+    sheet.setRowHeight(fila, 18);
+  }
+
+  // Actualizar fórmulas del TOTAL (se desplazó EXPAND filas hacia abajo)
+  const nuevaFilaTotal = filaTotal + EXPAND;
+  const nuevoDataEnd   = filaTotal + EXPAND - 1;
+  sheet.getRange(nuevaFilaTotal, 3).setFormula(`=SUM(C${dataStart}:C${nuevoDataEnd})`).setNumberFormat('#,##0');
+  sheet.getRange(nuevaFilaTotal, 5).setFormula(`=SUM(E${dataStart}:E${nuevoDataEnd})`).setNumberFormat('#,##0');
+  sheet.getRange(nuevaFilaTotal, 6).setFormula(`=SUM(F${dataStart}:F${nuevoDataEnd})`).setNumberFormat('#,##0');
+  sheet.getRange(nuevaFilaTotal, 7).setFormula(`=SUM(G${dataStart}:G${nuevoDataEnd})`).setNumberFormat('#,##0');
+
+  SpreadsheetApp.flush();
+  Logger.log(`✓ ${tarjeta}: +${EXPAND} filas. TOTAL ahora en fila ${nuevaFilaTotal}.`);
+
+  // Retornar la primera fila nueva (libre)
+  return filaTotal;
 }
 
 function getTarjetasActivas() {
