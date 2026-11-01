@@ -1,7 +1,7 @@
 // ============================================================
-// CONTROL DE GASTOS — Apps Script API v7.1
+// CONTROL DE GASTOS — Apps Script API v7.4
 // Versión con seguridad: login via API, tarjetas dinámicas,orden por fechas
-// v7.1: detección EXACTA de la sección de cada tarjeta (fix: una tarjeta
+// v7.4: detección EXACTA de la sección de cada tarjeta (fix: una tarjeta
 //       cuyo nombre contiene otro, ej. "BCI DEBITO", se leía como "BCI")
 // ============================================================
 
