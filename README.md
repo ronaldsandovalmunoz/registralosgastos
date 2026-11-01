@@ -158,7 +158,7 @@ Cada mes tiene su propio sheet (ej: "Junio 2026") con 4 secciones por tarjeta, c
 
 1. Ir a [script.google.com](https://script.google.com)
 2. Crear un nuevo proyecto
-3. Pegar el contenido de `API_Gastos_v7_completo.gs`
+3. Pegar el contenido de `API_Gastos_v7.1_completo.gs`
 4. Configurar `SHEET_ID` y `API_SECRET`
 5. Implementar como Web App:
    - Ejecutar como: **Yo**

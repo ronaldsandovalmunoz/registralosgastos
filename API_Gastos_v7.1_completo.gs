@@ -1,6 +1,8 @@
 // ============================================================
-// CONTROL DE GASTOS — Apps Script API v7
+// CONTROL DE GASTOS — Apps Script API v7.1
 // Versión con seguridad: login via API, tarjetas dinámicas,orden por fechas
+// v7.1: detección EXACTA de la sección de cada tarjeta (fix: una tarjeta
+//       cuyo nombre contiene otro, ej. "BCI DEBITO", se leía como "BCI")
 // ============================================================
 
 const SHEET_ID   = '1HaShlnCOdlGhblPOuWcoZw8dKD1FJ55ubYysQnoQhfI';    // <-- tu ID real de Google Sheets
@@ -472,14 +474,15 @@ function encontrarFilaLibre(sheet, tarjeta) {
   for (let i = 0; i < datos.length; i++) {
     const celda = String(datos[i][0]).trim().toUpperCase();
 
-    if (celda.includes(tarjeta.toUpperCase())) {
+    const encabezado = tarjetaDeEncabezado(celda, TARJETAS);
+
+    if (!dentroTarjeta && encabezado === String(tarjeta).trim().toUpperCase()) {
       dentroTarjeta = true;
       continue;
     }
 
     if (dentroTarjeta) {
-      const esOtraTarjeta = Object.keys(TARJETAS).some(t => celda.includes(t));
-      if (esOtraTarjeta) break;
+      if (encabezado) break; // empezó la sección de otra tarjeta
 
       if (celda === 'FECHA') {
         dataStart = i + 2; // fila 1-indexed donde empieza la data (después de FECHA)
@@ -546,6 +549,22 @@ function expandirSeccionTarjeta(sheet, tarjeta, filaTotal, dataStart) {
   return filaTotal;
 }
 
+// Devuelve el ID de la tarjeta si la celda es el encabezado de una sección
+// ("BCI DEBITO   |   Período: ..."), comparando el nombre EXACTO.
+// Devuelve null si la celda no es un encabezado de tarjeta.
+function tarjetaDeEncabezado(celda, TARJETAS) {
+  const texto = String(celda == null ? '' : celda).trim().toUpperCase();
+  if (!texto) return null;
+  if (texto.includes('|')) {
+    const id = texto.split('|')[0].trim();
+    // Encabezado con formato estándar: se reconoce aunque la tarjeta
+    // ya no esté activa, para no mezclar sus filas con la sección anterior.
+    if (texto.includes('PERÍODO') || texto.includes('PERIODO')) return id || null;
+    return TARJETAS.hasOwnProperty(id) ? id : null;
+  }
+  return TARJETAS.hasOwnProperty(texto) ? texto : null;
+}
+
 function getTarjetasActivas() {
   try {
     const sheet = getSheetTarjetas();
@@ -578,7 +597,7 @@ function obtenerGastos(mes, anio) {
     const fila = datos[i];
     const celda = String(fila[0]).trim().toUpperCase();
 
-    const tarjetaEncontrada = Object.keys(TARJETAS).find(t => celda.includes(t));
+    const tarjetaEncontrada = tarjetaDeEncabezado(celda, TARJETAS);
     if (tarjetaEncontrada) { tarjetaActual = tarjetaEncontrada; continue; }
 
     if (celda === 'FECHA' || celda === 'TOTAL' || !tarjetaActual) continue;
@@ -631,9 +650,9 @@ function eliminarGastoSheet(data) {
 
   for (let i = 0; i < valores.length; i++) {
     const celda = String(valores[i][0]).trim().toUpperCase();
-    const t = Object.keys(TARJETAS).find(t => celda.includes(t));
+    const t = tarjetaDeEncabezado(celda, TARJETAS);
     if (t) { tarjetaActual = t; continue; }
-    if (tarjetaActual !== data.tarjeta.toUpperCase()) continue;
+    if (tarjetaActual !== String(data.tarjeta).trim().toUpperCase()) continue;
     if (String(valores[i][1]).trim().toLowerCase() === String(data.detalle).trim().toLowerCase() &&
         Number(valores[i][2]) === Number(data.monto)) {
       filaEncontrada = i + 1;
@@ -662,9 +681,9 @@ function actualizarFotoSheet(data) {
 
   for (let i = 0; i < valores.length; i++) {
     const celda = String(valores[i][0]).trim().toUpperCase();
-    const t = Object.keys(TARJETAS).find(t => celda.includes(t));
+    const t = tarjetaDeEncabezado(celda, TARJETAS);
     if (t) { tarjetaActual = t; continue; }
-    if (tarjetaActual !== data.tarjeta.toUpperCase()) continue;
+    if (tarjetaActual !== String(data.tarjeta).trim().toUpperCase()) continue;
     if (String(valores[i][1]).trim().toLowerCase() === String(data.detalle).trim().toLowerCase() &&
         Number(valores[i][2]) === Number(data.monto)) {
       filaEncontrada = i + 1;
