@@ -264,6 +264,20 @@
     letter-spacing: 0.02em; 
   }
   .split-row { display: flex; gap: 10px; }
+  .split-title-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .split-title-row .split-title { margin-bottom: 0; }
+  .split-mitad {
+    border: 1px solid var(--border); background: var(--card); color: var(--dark);
+    border-radius: 8px; padding: 2px 10px; font-size: 13px; font-weight: 700;
+    cursor: pointer; font-family: inherit;
+  }
+  .split-input-row { display: flex; align-items: center; gap: 6px; }
+  .split-clear {
+    flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; border: none;
+    background: var(--border); color: var(--muted); font-size: 15px; line-height: 1;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;
+  }
+  .split-clear:active { background: var(--danger, #D9534F); color: #fff; }
   .split-field { 
     flex: 1; 
     background: var(--card); 
@@ -870,17 +884,29 @@
 
   <div class="form-section">
     <div class="split-card">
-      <div class="split-title">División del gasto</div>
+      <div class="split-title-row">
+        <div class="split-title">División del gasto</div>
+        <button type="button" class="split-mitad" onclick="aplicarSplit('mitad')"
+          aria-label="Dividir en partes iguales">½</button>
+      </div>
       <div class="split-row">
         <div class="split-field">
           <label>Marcela ($)</label>
-          <input type="number" id="f-marcela" placeholder="0" inputmode="numeric"
-            oninput="validarSplit()">
+          <div class="split-input-row">
+            <input type="number" id="f-marcela" placeholder="0" inputmode="numeric"
+              oninput="splitModo = 'manual'; validarSplit()">
+            <button type="button" class="split-clear" onclick="aplicarSplit('ronald')"
+              aria-label="Quitar monto de Marcela (todo para Ronald)">×</button>
+          </div>
         </div>
         <div class="split-field">
           <label>Ronald ($)</label>
-          <input type="number" id="f-ronald" placeholder="0" inputmode="numeric"
-            oninput="validarSplit()">
+          <div class="split-input-row">
+            <input type="number" id="f-ronald" placeholder="0" inputmode="numeric"
+              oninput="splitModo = 'manual'; validarSplit()">
+            <button type="button" class="split-clear" onclick="aplicarSplit('marcela')"
+              aria-label="Quitar monto de Ronald (todo para Marcela)">×</button>
+          </div>
         </div>
       </div>
       <div class="split-warning" id="split-warning">
@@ -2155,11 +2181,26 @@ function renderTarjetaGrid() {
 // ============================================================
 // CÁLCULO SPLIT
 // ============================================================
+// Modo de división elegido: 'mitad' (50/50), 'marcela' (100% Marcela),
+// 'ronald' (100% Ronald) o 'manual' (montos escritos a mano).
+let splitModo = 'mitad';
+
+// Se llama al cambiar el monto: respeta la elección hecha con la X.
 function calcularSplit() {
+  aplicarSplit(splitModo === 'manual' ? 'mitad' : splitModo);
+}
+
+// Reparte el monto total según el modo elegido.
+function aplicarSplit(modo) {
+  splitModo = modo;
   const monto = Number(document.getElementById('f-monto').value) || 0;
-  const mitad = Math.floor(monto / 2);
-  document.getElementById('f-marcela').value = mitad || '';
-  document.getElementById('f-ronald').value = monto - mitad || '';
+  let marcela, ronald;
+  if (modo === 'marcela')     { marcela = monto; ronald = 0; }
+  else if (modo === 'ronald') { marcela = 0;     ronald = monto; }
+  else { marcela = Math.floor(monto / 2); ronald = monto - marcela; }
+  document.getElementById('f-marcela').value = monto > 0 ? marcela : '';
+  document.getElementById('f-ronald').value  = monto > 0 ? ronald  : '';
+  validarSplit();
 }
 
 // ============================================================
@@ -3039,6 +3080,7 @@ function limpiarFormulario() {
   document.getElementById('f-cuotas').value = '1';
   document.getElementById('f-marcela').value = '';
   document.getElementById('f-ronald').value = '';
+  splitModo = 'mitad';
   document.getElementById('f-obs').value = '';
   if (document.getElementById('f-categoria-custom'))
     document.getElementById('f-categoria-custom').value = '';
