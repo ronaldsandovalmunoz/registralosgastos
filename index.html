@@ -272,6 +272,8 @@
     cursor: pointer; font-family: inherit;
   }
   .split-input-row { display: flex; align-items: center; gap: 6px; }
+  /* Safari iOS: sin min-width:0 el input no se achica y empuja la X fuera de la vista */
+  .split-input-row input { flex: 1 1 auto; min-width: 0; width: auto; }
   .split-clear {
     flex-shrink: 0; width: 24px; height: 24px; border-radius: 50%; border: none;
     background: var(--border); color: var(--muted); font-size: 15px; line-height: 1;
